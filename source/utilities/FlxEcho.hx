@@ -1,8 +1,5 @@
 package utilities;
 
-import flixel.FlxSprite;
-import flixel.util.FlxColor;
-import flixel.FlxG;
 import echo.Body;
 import echo.Echo;
 import echo.World;
@@ -11,8 +8,11 @@ import echo.data.Options.ListenerOptions;
 import echo.data.Options.WorldOptions;
 import echo.util.AABB;
 import flixel.FlxBasic;
+import flixel.FlxG;
 import flixel.FlxObject.*;
 import flixel.FlxObject;
+import flixel.FlxSprite;
+import flixel.util.FlxColor;
 import flixel.group.FlxGroup;
 
 using Math;
@@ -25,7 +25,8 @@ import flixel.system.ui.FlxSystemButton;
 import openfl.display.BitmapData;
 #end
 
-class FlxEcho extends FlxBasic {
+class FlxEcho extends FlxBasic
+{
 	/**
 	 * Gets the FlxEcho instance, which contains the current Echo World. May be Null if `FlxEcho.init` has not been called.
 	 */
@@ -64,8 +65,10 @@ class FlxEcho extends FlxBasic {
 	/**
 	 * Init the Echo physics simulation
 	 */
-	public static function init(options:WorldOptions) {
-		if (instance == null) {
+	public static function init(options:WorldOptions)
+	{
+		if (instance == null)
+		{
 			instance = new FlxEcho(options);
 			FlxG.plugins.add(instance);
 			FlxG.signals.preStateSwitch.add(on_state_switch);
@@ -76,11 +79,9 @@ class FlxEcho extends FlxBasic {
 
 		#if FLX_DEBUG
 		var icon = new BitmapData(11, 11, true, FlxColor.TRANSPARENT);
-		for (y in 0...icon_data.length)
-			for (x in 0...icon_data[y].length)
-				if (icon_data[y][x] > 0)
-					icon.setPixel32(x, y, FlxColor.WHITE);
-		if (draw_debug_button == null) {
+		for (y in 0...icon_data.length) for (x in 0...icon_data[y].length) if (icon_data[y][x] > 0) icon.setPixel32(x, y, FlxColor.WHITE);
+		if (draw_debug_button == null)
+		{
 			draw_debug_button = FlxG.debugger.addButton(RIGHT, icon, () -> draw_debug = !draw_debug, true, true);
 		}
 		draw_debug = draw_debug;
@@ -88,26 +89,24 @@ class FlxEcho extends FlxBasic {
 	}
 
 	/**
-	 * add physics body to FlxObject
+	 * Add physics body to FlxObject
 	 */
-	public static function add_body(object:FlxObject, ?options:BodyOptions):Body {
+	public static function add_body(object:FlxObject, ?options:BodyOptions):Body
+	{
 		var old_body = instance.bodies.get(object);
-		if (old_body != null) {
+		if (old_body != null)
+		{
 			old_body.dispose();
 		}
 
-		if (options == null)
-			options = {};
-		if (options.x == null)
-			options.x = object.x;
-		if (options.y == null)
-			options.y = object.y;
-		if (options.shape == null && options.shapes == null && options.shape_instance == null && options.shape_instances == null)
-			options.shape = {
-				type: RECT,
-				width: object.width,
-				height: object.height
-			}
+		if (options == null) options = {};
+		if (options.x == null) options.x = object.x + object.width * 0.5;
+		if (options.y == null) options.y = object.y + object.height * 0.5;
+		if (options.shape == null && options.shapes == null && options.shape_instance == null && options.shape_instances == null) options.shape = {
+			type: RECT,
+			width: object.width,
+			height: object.height
+		}
 		var body = new Body(options);
 		body.object = object;
 		instance.bodies.set(object, body);
@@ -118,35 +117,32 @@ class FlxEcho extends FlxBasic {
 	/**
 	 * Adds FlxObject to FlxGroup, and the FlxObject's associated physics body to the FlxGroup's associated physics group
 	 */
-	public inline static function add_to_group(object:FlxObject, group:FlxGroup) {
+	public inline static function add_to_group(object:FlxObject, group:FlxGroup)
+	{
 		group.add(object);
-		if (!instance.groups.exists(group))
-			instance.groups.set(group, []);
-		if (instance.bodies.exists(object))
-			instance.groups[group].push(instance.bodies[object]);
+		if (!instance.groups.exists(group)) instance.groups.set(group, []);
+		if (instance.bodies.exists(object)) instance.groups[group].push(instance.bodies[object]);
 	}
 
 	/**
 	 * Creates a physics listener
 	 */
-	public static function listen(a:FlxBasic, b:FlxBasic, ?options:ListenerOptions) {
-		if (options == null)
-			options = {};
+	public static function listen(a:FlxBasic, b:FlxBasic, ?options:ListenerOptions)
+	{
+		if (options == null) options = {};
 		var temp_stay = options.stay;
-		options.stay = (a, b, c) -> {
-			if (temp_stay != null)
-				temp_stay(a, b, c);
-			if (options.separate == null || options.separate)
-				for (col in c)
-					set_touching(get_object(a), [CEILING, WALL, FLOOR][col.normal.dot(Vector2.yAxis).round() + 1]);
+		options.stay = (a, b, c) ->
+		{
+			if (temp_stay != null) temp_stay(a, b, c);
+			if (options.separate == null || options.separate) for (col in c) set_touching(get_object(a), [CEILING, WALL, FLOOR]
+				[col.normal.dot(Vector2.yAxis).round() + 1]);
 		}
 		#if ARCADE_PHYSICS
 		var temp_condition = options.condition;
-		options.condition = (a, b, c) -> {
-			for (col in c)
-				square_normal(col.normal);
-			if (temp_condition != null)
-				return temp_condition(a, b, c);
+		options.condition = (a, b, c) ->
+		{
+			for (col in c) square_normal(col.normal);
+			if (temp_condition != null) return temp_condition(a, b, c);
 			return true;
 		}
 		#end
@@ -154,10 +150,8 @@ class FlxEcho extends FlxBasic {
 		var a_is_object = a.is(FlxObject);
 		var b_is_object = b.is(FlxObject);
 
-		if (!a_is_object)
-			add_group_bodies(cast a);
-		if (!b_is_object)
-			add_group_bodies(cast b);
+		if (!a_is_object) add_group_bodies(cast a);
+		if (!b_is_object) add_group_bodies(cast b);
 
 		instance.world.listen(!a_is_object ? instance.groups[cast a] : instance.bodies[cast a],
 			!b_is_object ? instance.groups[cast b] : instance.bodies[cast b], options);
@@ -169,7 +163,11 @@ class FlxEcho extends FlxBasic {
 	public static inline function get_body(object:FlxObject):Body
 		return instance.bodies[object];
 
-	public static function set_body(object:FlxObject, body:Body):Body {
+	/**
+	 * Sets a physics body to a FlxObject
+	 */
+	public static function set_body(object:FlxObject, body:Body):Body
+	{
 		var old_body = instance.bodies.get(object);
 		if (old_body != null) {
 			old_body.dispose();
@@ -185,13 +183,14 @@ class FlxEcho extends FlxBasic {
 	/**
 	 * Removes the physics body from the simulation
 	 */
-	public static function remove_body(body:Body):Bool {
-		for (o => b in instance.bodies)
-			if (b == body) {
-				body.remove();
-				instance.bodies.remove(o);
-				return true;
-			}
+	public static function remove_body(body:Body):Bool
+	{
+		for (o => b in instance.bodies) if (b == body)
+		{
+			body.remove();
+			instance.bodies.remove(o);
+			return true;
+		}
 
 		return false;
 	}
@@ -199,20 +198,19 @@ class FlxEcho extends FlxBasic {
 	/**
 	 * Get the FlxObject associated with a physics body
 	 */
-	public static function get_object(body:Body):FlxObject {
-		for (o => b in instance.bodies)
-			if (b == body)
-				return o;
+	public static function get_object(body:Body):FlxObject
+	{
+		for (o => b in instance.bodies) if (b == body) return o;
 		return null;
 	}
 
 	/**
 	 * Removes (and optionally disposes) the physics body associated with the FlxObject
 	 */
-	public static function remove_object(object:FlxObject, dispose:Bool = true):Bool {
+	public static function remove_object(object:FlxObject, dispose:Bool = true):Bool
+	{
 		var body = instance.bodies.get(object);
-		if (body == null)
-			return false;
+		if (body == null) return false;
 
 		if (dispose) {
 			body.dispose();
@@ -225,68 +223,68 @@ class FlxEcho extends FlxBasic {
 	/**
 	 * Associates a FlxGroup to a physics group
 	 */
-	public static inline function add_group_bodies(group:FlxGroup) {
-		if (!instance.groups.exists(group))
-			instance.groups.set(group, []);
+	public static inline function add_group_bodies(group:FlxGroup)
+	{
+		if (!instance.groups.exists(group)) instance.groups.set(group, []);
 	}
 
 	/**
 	 * Gets a FlxGroup's associated physics group
 	 */
-	public static inline function get_group_bodies(group:FlxGroup):Null<Array<Body>> {
+	public static inline function get_group_bodies(group:FlxGroup):Null<Array<Body>>
+	{
 		return instance.groups.get(group);
 	}
 
 	/**
 	 * Removes the FlxGroup's associated physics group from the simulation
 	 */
-	public static inline function remove_group_bodies(group:FlxGroup) {
+	public static inline function remove_group_bodies(group:FlxGroup)
+	{
 		return instance.groups.remove(group);
 	}
 
 	/**
 	 * Removes the FlxObject from the FlxGroup, and the FlxObject's associated physics body from the FlxGroup's associated physics group
 	 */
-	public static inline function remove_from_group(object:FlxObject, group:FlxGroup):Bool {
+	public static inline function remove_from_group(object:FlxObject, group:FlxGroup):Bool
+	{
 		group.remove(object);
-		if (!instance.groups.exists(group) || !instance.bodies.exists(object))
-			return false;
+		if (!instance.groups.exists(group) || !instance.bodies.exists(object)) return false;
 		return instance.groups[group].remove(instance.bodies[object]);
 	}
 
-	static inline function update_body_object(body:Body) {
-		if (body.object == null)
-			return;
+	static inline function update_body_object(body:Body) 
+	{
+		if (body.object == null) return;
 		body.object.setPosition(body.x, body.y);
 		if (body.object.isOfType(FlxSprite)) {
 			var sprite:FlxSprite = cast body.object;
 			sprite.x -= sprite.origin.x;
 			sprite.y -= sprite.origin.y;
 		}
-		body.object.angle = body.rotation /*+ 90*/; // +90 to have upright sprites stay upright
-		if (reset_acceleration)
-			body.acceleration.set(0, 0);
+		body.object.angle = body.rotation;
+		if (reset_acceleration) body.acceleration.set(0, 0);
 	}
 
-	static inline function set_touching(object:FlxObject, touching:Int) {
-		if (object.touching & touching == 0)
-			object.touching += touching;
+	static inline function set_touching(object:FlxObject, touching:Int)
+	{
+		if (object.touching & touching == 0) object.touching += touching;
 	}
 
-	static function square_normal(normal:Vector2) {
+	static function square_normal(normal:Vector2)
+	{
 		var len = normal.length;
 		var dot_x = normal.dot(Vector2.xAxis);
 		var dot_y = normal.dot(Vector2.yAxis);
-		if (dot_x.abs() > dot_y.abs())
-			dot_x > 0 ? normal.set(1, 0) : normal.set(-1, 0);
-		else
+		if (dot_x.abs() > dot_y.abs()) dot_x > 0 ? normal.set(1, 0) : normal.set(-1, 0); else
 			dot_y > 0 ? normal.set(0, 1) : normal.set(0, -1);
 		normal.normalizeTo(len);
 	}
 
-	static function on_state_switch() {
-		for (body in instance.bodies)
-			body.dispose();
+	static function on_state_switch()
+	{
+		for (body in instance.bodies) body.dispose();
 		instance.bodies.clear();
 		instance.groups.clear();
 		instance.world.clear();
@@ -294,27 +292,32 @@ class FlxEcho extends FlxBasic {
 		draw_debug = false;
 
 		#if FLX_DEBUG
-		if (draw_debug_button != null) {
+		if (draw_debug_button != null)
+		{
 			FlxG.debugger.removeButton(draw_debug_button);
 			draw_debug_button = null;
 		}
 		#end
 	}
 
-	static function set_draw_debug(v:Bool) {
+	static function set_draw_debug(v:Bool)
+	{
 		#if FLX_DEBUG
-		if (draw_debug_button != null)
-			draw_debug_button.toggled = !v;
+		if (draw_debug_button != null) draw_debug_button.toggled = !v;
 
-		if (v) {
-			if (debug_drawer == null) {
+		if (v)
+		{
+			if (debug_drawer == null)
+			{
 				debug_drawer = new OpenFLDebug();
 				debug_drawer.camera = AABB.get();
 				debug_drawer.draw_quadtree = false;
 				debug_drawer.canvas.scrollRect = null;
 			}
 			FlxG.addChildBelowMouse(debug_drawer.canvas);
-		} else if (debug_drawer != null) {
+		}
+		else if (debug_drawer != null)
+		{
 			debug_drawer.clear();
 			FlxG.removeChild(debug_drawer.canvas);
 		}
@@ -323,14 +326,16 @@ class FlxEcho extends FlxBasic {
 		return draw_debug = v;
 	}
 
-	public function new(options:WorldOptions) {
+	public function new(options:WorldOptions)
+	{
 		super();
 		groups = [];
 		bodies = [];
 		world = Echo.start(options);
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float)
+	{
 		if (updates)
 			world.step(elapsed);
 
@@ -340,11 +345,11 @@ class FlxEcho extends FlxBasic {
 
 	#if FLX_DEBUG
 	@:access(flixel.FlxCamera)
-	override function draw() {
+	override function draw()
+	{
 		super.draw();
 
-		if (!draw_debug || debug_drawer == null || world == null)
-			return;
+		if (!draw_debug || debug_drawer == null || world == null) return;
 
 		// TODO - draw with full FlxG.cameras list
 		debug_drawer.camera.set_from_min_max(FlxG.camera.scroll.x, FlxG.camera.scroll.y, FlxG.camera.scroll.x + FlxG.camera.width,
@@ -359,11 +364,11 @@ class FlxEcho extends FlxBasic {
 	}
 	#end
 
-	override function destroy() {
+	override function destroy()
+	{
 		super.destroy();
 
-		for (body in bodies)
-			body.dispose();
+		for (body in bodies) body.dispose();
 		bodies.clear();
 		groups.clear();
 		world.dispose();
