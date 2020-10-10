@@ -1,7 +1,5 @@
 package states;
 
-package states;
-
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSprite;
@@ -13,14 +11,13 @@ import flixel.tweens.FlxTween;
 import echo.util.TileMap;
 
 using Math;
-using util.FlxEcho;
+using utilities.FlxEcho;
 using hxmath.math.Vector2;
 using flixel.util.FlxArrayUtil;
 using flixel.util.FlxSpriteUtil;
 
 class PlayState extends FlxState
 {
-
 	var player:Box;
 	var level_data = [
 		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
