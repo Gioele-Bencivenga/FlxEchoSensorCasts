@@ -7,12 +7,17 @@ import flixel.FlxSprite;
 using utilities.FlxEcho;
 
 class Tile extends FlxSprite {
-	/// BODY
-	public var body(default, null):Body;
+	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
+		super(_x, _y);
 
-	public function new() {
-		super();
+		makeGraphic(_width, _height, _color);
+	}
 
-		makeGraphic(1, 1, FlxColor.TRANSPARENT);
+	/**
+	 * Killing this object will also remove its physics body.
+	 */
+	override function kill() {
+		super.kill();
+		this.get_body().remove_body();
 	}
 }
