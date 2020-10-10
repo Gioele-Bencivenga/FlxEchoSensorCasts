@@ -16,8 +16,10 @@ using hxmath.math.Vector2;
 using flixel.util.FlxArrayUtil;
 using flixel.util.FlxSpriteUtil;
 
-class PlayState extends FlxState
-{
+class PlayState extends FlxState {
+	/// CONSTANTS
+	public static inline final TILE_SIZE = 32;
+
 	var player:Box;
 	var level_data = [
 		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -41,9 +43,8 @@ class PlayState extends FlxState
 	override function create() {
 		// First thing we want to do before creating any physics objects is init() our Echo world.
 		FlxEcho.init({
-			width: level_data[0].length * 16,	// Make the size of your Echo world equal the size of your play field
-			height: level_data.length * 16,
-			gravity_y: 800
+			width: level_data[0].length * TILE_SIZE, // Make the size of your Echo world equal the size of your play field
+			height: level_data.length * TILE_SIZE,
 		});
 
 		// Normal, every day FlxGroups!
@@ -83,10 +84,10 @@ class PlayState extends FlxState
 		}
 
 		// lets add some ramps too! They'll belong to the same collision group as the blue boxes we made earlier.
-		for (i in 0...8) {
+		/*for (i in 0...8) {
 			var ramp = new Ramp(16, 112 + i * 16, 16 + i * 16, 128 - i * 16, NW);
 			ramp.add_to_group(terrain);
-		}
+		}*/
 
 		// Our first physics listener collides our player with the terrain group.		
 		player.listen(terrain);
@@ -124,13 +125,22 @@ class Box extends FlxSprite {
 	}
 	function controls() {
 		var body = this.get_body();
-		body.velocity.x = 0;
-		if (FlxG.keys.pressed.LEFT) body.velocity.x -= 128;
-		if (FlxG.keys.pressed.RIGHT) body.velocity.x += 128;
-		if (FlxG.keys.justPressed.UP && isTouching(FLOOR)) body.velocity.y -= 256;
+		// body.velocity.x = 0; trying to have drag do this
+		// body.velocity.y = 0;
+		if (FlxG.keys.pressed.LEFT || FlxG.keys.pressed.A)
+			body.velocity.x -= 30;
+		if (FlxG.keys.pressed.RIGHT || FlxG.keys.pressed.D)
+			body.velocity.x += 30;
+		if (FlxG.keys.justPressed.UP || FlxG.keys.pressed.W)
+			body.velocity.y -= 30;
+		if (FlxG.keys.justPressed.DOWN || FlxG.keys.pressed.S)
+			body.velocity.y += 30;
 	}
 }
 
+/**
+ * NOT USED at the moment, might break
+ */
 class Ramp extends FlxSprite {
 	public function new(x:Float, y:Float, w:Int, h:Int, d:RampDirection) {
 		trace('$x / $y / $w / $h');
