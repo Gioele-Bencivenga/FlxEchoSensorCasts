@@ -1,5 +1,7 @@
 package states;
 
+import flixel.FlxCamera;
+import generators.Generator;
 import entities.Entity;
 import entities.Player;
 import tiles.Tile;
@@ -24,32 +26,19 @@ class PlayState extends FlxState {
 	/// CONSTANTS
 	public static inline final TILE_SIZE = 32;
 
+	var gen:Generator;
+
 	var player:Player;
 
-	var level_data = [
-		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-		[1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1],
-		[1, 0, 0, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-	];
+	var levelData:Array<Array<Int>>;
 
 	override function create() {
+		gen = new Generator(30, 30);
+		levelData = gen.generateRandom(0.70);
 		// First thing we want to do before creating any physics objects is init() our Echo world.
 		FlxEcho.init({
-			width: level_data[0].length * TILE_SIZE, // Make the size of your Echo world equal the size of your play field
-			height: level_data.length * TILE_SIZE,
+			width: levelData[0].length * TILE_SIZE, // Make the size of your Echo world equal the size of your play field
+			height: levelData.length * TILE_SIZE,
 		});
 
 		// Normal, every day FlxGroups!
@@ -60,7 +49,7 @@ class PlayState extends FlxState {
 		add(bouncers);
 
 		// We'll use Echo's TileMap utility to generate physics bodies for our Tilemap - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
-		var tiles = TileMap.generate(level_data.flatten2DArray(), TILE_SIZE, TILE_SIZE, level_data[0].length, level_data.length, 0, 0, 1, null, [2,3]);
+		var tiles = TileMap.generate(levelData.flatten2DArray(), TILE_SIZE, TILE_SIZE, levelData[0].length, levelData.length, 0, 0, 1, null, [2, 3]);
 		for (tile in tiles) {
 			var bounds = tile.bounds(); // Get the bounds of the generated physics body to create a Box sprite from it
 			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.WHITE);
@@ -70,28 +59,31 @@ class PlayState extends FlxState {
 		}
 
 		// We'll step through our level data and add objects that way
-		for (j in 0...level_data.length) for (i in 0...level_data[j].length) {
-			switch (level_data[j][i]) {
-				case 2:
-					// Orange boxes will act like springs!
-					var orangebox = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xFFFF8000);
-					// We'll set the origin and offset here so that we can animate our orange block later
-					orangebox.origin.y = TILE_SIZE;
-					orangebox.offset.y = -TILE_SIZE/2;
-					orangebox.add_body({ mass: 0 }); // Create a new physics body for the Box sprite. We'll pass in body options with mass set to 0 so that it's static
-					orangebox.add_to_group(bouncers);
-				case 3:
-					player = new Player(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE/2), Std.int(TILE_SIZE/2), FlxColor.MAGENTA);
-					player.add_body({
-						mass: 1, 
-						drag_length: 1000, 
-						max_velocity_length: Entity.MAX_VELOCITY, 
-						max_rotational_velocity: Entity.MAX_ROTATIONAL_VELOCITY,
-					});
-					add(player);
-				default: continue;
+		for (j in 0...levelData.length)
+			for (i in 0...levelData[j].length) {
+				switch (levelData[j][i]) {
+					case 2:
+						// Orange boxes will act like springs!
+						var orangebox = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xFFFF8000);
+						// We'll set the origin and offset here so that we can animate our orange block later
+						orangebox.origin.y = TILE_SIZE;
+						orangebox.offset.y = -TILE_SIZE / 2;
+						orangebox.add_body({mass: 0}); // Create a new physics body for the Box sprite. We'll pass in body options with mass set to 0 so that it's static
+						orangebox.add_to_group(bouncers);
+					case 3:
+						player = new Player(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2.5), Std.int(TILE_SIZE / 2.5), FlxColor.MAGENTA);
+						player.add_body({
+							mass: 1,
+							drag_length: 500,
+							rotational_drag: 150,
+							max_velocity_length: Entity.MAX_VELOCITY,
+							max_rotational_velocity: Entity.MAX_ROTATIONAL_VELOCITY,
+						});
+						add(player);
+					default:
+						continue;
+				}
 			}
-		}
 
 		// lets add some ramps too! They'll belong to the same collision group as the blue boxes we made earlier.
 		/*for (i in 0...8) {
@@ -99,27 +91,33 @@ class PlayState extends FlxState {
 			ramp.add_to_group(terrain);
 		}*/
 
-		// Our first physics listener collides our player with the terrain group.		
+		// Our first physics listener collides our player with the terrain group.
 		player.listen(terrain);
 		// Our second physics listener collides our player with the bouncers group.
-		player.listen(bouncers, {
-			// We'll add this listener option - every frame our player object is colliding with a bouncer in the bouncers group we'll run this function
-			stay: (a, b, c) -> { // where a is our first physics body (`player`), b is the physics body it's colliding with (`orangebox`), and c is an array of collision data.
-				/*// for every instance of collision data
-				for (col in c) {
-					// This checks to see if the normal of our collision is pointing downward - you could use it for hop and bop games to see if a player has stomped on an enemy!
-					if (col.normal.dot(Vector2.yAxis).round() == 1) {
-						// set the player's velocity to go up!
-						a.velocity.y = -10000;
-						// animate the orange box!
-						var b_object:FlxSprite = cast b.get_object();
-						b_object.scale.y = 1.5;
-						FlxTween.tween(b_object.scale, { y: 1 }, 0.5, { ease: FlxEase.elasticOut });
-					}
-				}*/
-				a.velocity.y = -4000;
-			}
-		});
+		//	player.listen(bouncers, {
+		//	// We'll add this listener option - every frame our player object is colliding with a bouncer in the bouncers group we'll run this function
+		//		stay: (a, b,
+		//			c) ->
+		//		{ // where a is our first physics body (`player`), b is the physics body it's colliding with (`orangebox`), and c is an array of collision data.
+		//				/*// for every instance of collision data
+		//					for (col in c) {
+		//						// This checks to see if the normal of our collision is pointing downward - you could use it for hop and bop games to see if a player has stomped on an enemy!
+		//						if (col.normal.dot(Vector2.yAxis).round() == 1) {
+		//							// set the player's velocity to go up!
+		//							a.velocity.y = -10000;
+		//							// animate the orange box!
+		//							var b_object:FlxSprite = cast b.get_object();
+		//							b_object.scale.y = 1.5;
+		//							FlxTween.tween(b_object.scale, { y: 1 }, 0.5, { ease: FlxEase.elasticOut });
+		//						}
+		//				}*/
+		//				a.velocity.y = -4000;
+		//			}
+		//	});
+
+		FlxG.camera.follow(player);
+		FlxG.camera.followLead.set(15, 15);
+		FlxG.camera.followLerp = 0.1;
 	}
 }
 
@@ -131,19 +129,23 @@ class Ramp extends FlxSprite {
 		trace('$x / $y / $w / $h');
 		super(x, y);
 		makeGraphic(w, h, 0x00FFFFFF);
-		var verts = [ [0, 0], [w, 0], [w, h], [0, h] ];
+		var verts = [[0, 0], [w, 0], [w, h], [0, h]];
 		switch d {
-			case NE: verts.splice(0, 1);
-			case NW: verts.splice(1, 1);
-			case SE: verts.splice(3, 1);
-			case SW: verts.splice(2, 1);
+			case NE:
+				verts.splice(0, 1);
+			case NW:
+				verts.splice(1, 1);
+			case SE:
+				verts.splice(3, 1);
+			case SW:
+				verts.splice(2, 1);
 		}
-		this.drawPolygon([ for (v in verts) FlxPoint.get(v[0], v[1]) ], 0xFFFF0080);
+		this.drawPolygon([for (v in verts) FlxPoint.get(v[0], v[1])], 0xFFFF0080);
 		this.add_body({
 			mass: 0,
 			shape: {
 				type: POLYGON,
-				vertices: [ for (v in verts) new Vector2(v[0] - w * 0.5, v[1] - h * 0.5) ],
+				vertices: [for (v in verts) new Vector2(v[0] - w * 0.5, v[1] - h * 0.5)],
 			}
 		});
 	}
