@@ -8,6 +8,8 @@ class Player extends Entity {
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
 		canMove = true;
+
+		speed = 70;
 	}
 
 	override function update(elapsed:Float) {

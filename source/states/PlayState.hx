@@ -33,8 +33,9 @@ class PlayState extends FlxState {
 	var levelData:Array<Array<Int>>;
 
 	override function create() {
-		gen = new Generator(30, 30);
-		levelData = gen.generateRandom(0.70);
+		gen = new Generator(50, 50); // we instantiate a generator that will generate a matrix of cells
+		levelData = gen.generateCave();
+
 		// First thing we want to do before creating any physics objects is init() our Echo world.
 		FlxEcho.init({
 			width: levelData[0].length * TILE_SIZE, // Make the size of your Echo world equal the size of your play field
@@ -92,7 +93,7 @@ class PlayState extends FlxState {
 		}*/
 
 		// Our first physics listener collides our player with the terrain group.
-		player.listen(terrain);
+		//player.listen(terrain);
 		// Our second physics listener collides our player with the bouncers group.
 		//	player.listen(bouncers, {
 		//	// We'll add this listener option - every frame our player object is colliding with a bouncer in the bouncers group we'll run this function
@@ -116,8 +117,8 @@ class PlayState extends FlxState {
 		//	});
 
 		FlxG.camera.follow(player);
-		FlxG.camera.followLead.set(15, 15);
-		FlxG.camera.followLerp = 0.1;
+		FlxG.camera.followLead.set(50, 50);
+		FlxG.camera.followLerp = 0.01;
 	}
 }
 
