@@ -19,16 +19,6 @@ class Generator {
 	var levelHeight:Int;
 
 	/**
-	 * The number of neighbours that induces a cell to die(turn to a 0) of starvation during a simulation step.
-	 */
-	var deathLimit:Int;
-
-	/**
-	 * The number of neighbours that induces a cell to be born (turn to a 1) during a simulation step.
-	 */
-	var birthLimit:Int;
-
-	/**
 	 * Instantiate a new generator, specifying the default width and height of the levels it will generate.
 	 *
 	 * Both can be overridden when generating a level thanks to optional arguments.
@@ -104,7 +94,9 @@ class Generator {
 	/**
 	 * Generates a matrix that will be used to generate the game world using a cellular automaton.
 	 *
-	 * Tweak the parameters to obtain different results, although it should generally resemble a cave.
+	 * Tweak the parameters to obtain different results, although it should generally resemble a cave system.
+	 * 
+	 * Watch out, this algorithm doesn't guarantee all parts of the cave will be accessible!
 	 *
 	 * @param _aliveChance = 0.4 the probability that a cell will start out alive
 	 * @param _deathLimit = 3 the minimum number of neighbours needed kill a cell
@@ -115,7 +107,7 @@ class Generator {
 	 * @param ?_levelHeight if specified overrides the height that was given to the `Generator` on creation
 	 * @return a matrix of `Int`s that's hopefully similar in shape to a cave
 	 */
-	public function generateCave(_aliveChance = 0.4, _deathLimit = 3, _birthLimit = 4, _stepNumber = 2, ?_levelWidth:Int,
+	public function generateCave(_aliveChance = 0.25, _deathLimit = 2, _birthLimit = 3, _stepNumber = 10, ?_levelWidth:Int,
 			?_levelHeight:Int):Array<Array<Int>> {
 		// if new dimensions were passed in we modify them
 		if (_levelWidth != null)
@@ -130,7 +122,7 @@ class Generator {
 		levelData = generateRandom(_aliveChance);
 		// run the cellular automaton for a set number of steps
 		for (i in 0..._stepNumber) {
-			levelData = doStep(levelData);
+			levelData = doStep(levelData, _deathLimit, _birthLimit);
 		}
 
 		levelData = placePlayer(levelData);
@@ -146,15 +138,16 @@ class Generator {
 	 * @param _levelData the level where you want to count the neighbours in
 	 * @param _cellX the X coordinate of the cell you want to count the neighbours of
 	 * @param _cellY the Y coordinate of the cell you want to count the neighbours of
+	 * @param _radius the radius of the neighbourhood. 1 = we only check adjacent cells, 2 = we check two tiles around the central cell and so on.
 	 * @return the number of 1s or alive neighbours that the specified cell has in that level
 	 */
-	function countAliveNeighbours(_levelData:Array<Array<Int>>, _cellX:Int, _cellY:Int):Int {
+	function countAliveNeighbours(_levelData:Array<Array<Int>>, _cellX:Int, _cellY:Int, _radius:Int = 1):Int {
 		var count:Int = 0;
 
 		// to count neighbours we'll check cells that are at the supplied x-1 and x+1
-		for (x in -1...2) {
+		for (x in -_radius..._radius + 1) {
 			// to count neighbours we'll check cells that are at the supplied y-1 and y+1
-			for (y in -1...2) {
+			for (y in -_radius..._radius + 1) {
 				var neighX = _cellX + x;
 				var neighY = _cellY + y;
 
@@ -171,14 +164,16 @@ class Generator {
 	}
 
 	/**
-	 * Applies the cellular automaton rules for a step of the simlation.
+	 * Applies the cellular automaton rules for a step of the simulation.
 	 *
-	 * uof overpopulationChange `overcrowdLimit` and `birthLimit` to change how many cells die or are born.
+	 * Tweak `_deathLimit` and `_birthLimit` to change how many cells die or are born.
 	 *
 	 * @param _previousLevel the current map to which you want to apply the simulation step
+	 * @param _deathLimit if a cell has less neighbours than this number, it dies (turns to 0)
+	 * @param _birthLimit if a cell has more neighbours than this number, it's born (turns to 1)
 	 * @return a new level that has undergone the simulation
 	 */
-	function doStep(_previousLevel:Array<Array<Int>>):Array<Array<Int>> {
+	function doStep(_previousLevel:Array<Array<Int>>, _deathLimit:Int, _birthLimit:Int):Array<Array<Int>> {
 		// if we modify the same matrix we read from the generation will mess up, so here we instantiate our new, modified level
 		var newLevel:Array<Array<Int>> = [for (x in 0...levelWidth) [for (y in 0...levelHeight) 0]];
 
@@ -189,13 +184,13 @@ class Generator {
 				var neighCount = countAliveNeighbours(_previousLevel, x, y);
 
 				if (_previousLevel[x][y] == 1) { // If a cell is alive
-					if (neighCount < deathLimit) { // and has too few neighbours
+					if (neighCount < _deathLimit) { // and has too few neighbours
 						newLevel[x][y] = 0; // copy it to the new level as dead
 					} else {
 						newLevel[x][y] = 1; // copy it to the new level as alive
 					}
 				} else if (_previousLevel[x][y] == 0) { // if the cell is dead
-					if (neighCount > birthLimit) { // and has enough neighbours to be born
+					if (neighCount > _birthLimit) { // and has enough neighbours to be born
 						newLevel[x][y] = 1; // copy it to the new level as alive
 					} else {
 						newLevel[x][y] = 0; // copy it to the new level as dead

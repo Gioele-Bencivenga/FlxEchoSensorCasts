@@ -33,7 +33,7 @@ class PlayState extends FlxState {
 	var levelData:Array<Array<Int>>;
 
 	override function create() {
-		gen = new Generator(50, 50); // we instantiate a generator that will generate a matrix of cells
+		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
 
 		// First thing we want to do before creating any physics objects is init() our Echo world.
@@ -56,6 +56,7 @@ class PlayState extends FlxState {
 			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.WHITE);
 			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
 			wallTile.set_body(tile); // Attach the Generated physics body to the Box sprite
+			wallTile.get_body().mass = 0; // tiles are immovable
 			wallTile.add_to_group(terrain); // Instead of `group.add(object)` we use `object.add_to_group(group)`
 		}
 
@@ -93,7 +94,8 @@ class PlayState extends FlxState {
 		}*/
 
 		// Our first physics listener collides our player with the terrain group.
-		//player.listen(terrain);
+		player.listen(terrain);
+
 		// Our second physics listener collides our player with the bouncers group.
 		//	player.listen(bouncers, {
 		//	// We'll add this listener option - every frame our player object is colliding with a bouncer in the bouncers group we'll run this function
@@ -117,6 +119,8 @@ class PlayState extends FlxState {
 		//	});
 
 		FlxG.camera.follow(player);
+		FlxG.camera.zoom = 0.5;
+		FlxG.camera.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
 		FlxG.camera.followLead.set(50, 50);
 		FlxG.camera.followLerp = 0.01;
 	}
