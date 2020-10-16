@@ -6,7 +6,7 @@
 		}
 	</style>
 	<hbox continuous="false" styleNames="bordered">
-		<button id="btn1" text="Button 1" onClick="btn1_onClick();" />
+		<button id="btn_gen" text="Generate" />
 		<button text="Button 2" />
 		<button text="Button 3" />
 	</hbox>

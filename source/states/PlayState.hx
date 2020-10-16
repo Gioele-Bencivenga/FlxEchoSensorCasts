@@ -139,11 +139,12 @@ class PlayState extends FlxState {
 
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
 		add(uiView);
+		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
+		uiView.findComponent("btn_gen", Button).onClick = btn_generate_onClick;
 	}
 
-	// I want to call this function
-	public function btn1_onClick() {
-		var btn = uiView.findComponent("btn1", Button); // need to specify component type if you want field completion after
+	function btn_generate_onClick(_) {
+		var btn = uiView.findComponent("btn_gen", Button); // need to specify component type if you want field completion after
 		btn.text = "I got clicked!";
 	}
 }
