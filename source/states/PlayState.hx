@@ -36,6 +36,11 @@ class PlayState extends FlxState {
 
 	var levelData:Array<Array<Int>>;
 
+	/**
+	 * Our UI using haxeui, this contains the list of components and all.
+	 */
+	var uiView:Component;
+
 	override function create() {
 		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
@@ -130,9 +135,16 @@ class PlayState extends FlxState {
 
 		/// UI STUFF
 		Toolkit.init();
+		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
 
-		var mainView:Component = ComponentMacros.buildComponent("assets/ui/main-view.xml");
-		add(mainView);
+		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
+		add(uiView);
+	}
+
+	// I want to call this function
+	public function btn1_onClick() {
+		var btn = uiView.findComponent("btn1", Button); // need to specify component type if you want field completion after
+		btn.text = "I got clicked!";
 	}
 }
 
