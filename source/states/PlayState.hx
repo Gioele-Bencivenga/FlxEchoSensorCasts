@@ -1,5 +1,9 @@
 package states;
 
+import haxe.ui.core.Component;
+import haxe.ui.macros.ComponentMacros;
+import haxe.ui.components.*;
+import haxe.ui.Toolkit;
 import flixel.FlxCamera;
 import generators.Generator;
 import entities.Entity;
@@ -119,10 +123,16 @@ class PlayState extends FlxState {
 		//	});
 
 		FlxG.camera.follow(player);
-		FlxG.camera.zoom = 0.5;
+		FlxG.camera.zoom = 1;
 		FlxG.camera.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
 		FlxG.camera.followLead.set(50, 50);
 		FlxG.camera.followLerp = 0.01;
+
+		/// UI STUFF
+		Toolkit.init();
+
+		var mainView:Component = ComponentMacros.buildComponent("assets/ui/main-view.xml");
+		add(mainView);
 	}
 }
 

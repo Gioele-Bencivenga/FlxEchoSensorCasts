@@ -42,10 +42,14 @@
 	<!-- In case you want to use the addons package -->
 	<haxelib name="flixel-addons" />
 
-	<!-- Physics library by austineast -->
+	<!-- Echo Physics by Austin East -->
 	<haxelib name="echo" />
 	<!-- Adds an `object` field with `FlxObject` type to echo's `Body` class -->
 	<haxeflag name="--macro" value="echo.Macros.add_data('object','flixel.FlxObject')" />
+
+	<!-- HaxeUI by IanArrigan-->
+	<haxelib name="haxeui-core" />
+	<haxelib name="haxeui-flixel" />
 
 	<!-- AdMob extension for displaying ads -->
 	<!-- <haxelib name="extension-admob" /> -->
