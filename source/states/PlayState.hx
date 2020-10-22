@@ -27,6 +27,8 @@ using hxmath.math.Vector2;
 using flixel.util.FlxArrayUtil;
 using flixel.util.FlxSpriteUtil;
 
+//haxelib git haxeui-flixel https://github.com/haxeui/haxeui-flixel
+
 class PlayState extends FlxState {
 	/// CONSTANTS
 	public static inline final TILE_SIZE = 32;
