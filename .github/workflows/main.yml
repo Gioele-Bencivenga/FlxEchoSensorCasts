@@ -18,7 +18,7 @@ jobs:
       - name: Build
         run: |
           haxelib git echo https://github.com/AustinEast/echo.git
-          haxelib install haxeui-core
+          haxelib git haxeui-core https://github.com/haxeui/haxeui-core
           haxelib git haxeui-flixel https://github.com/haxeui/haxeui-flixel
           haxelib run lime build html5 -final
       - name: Deploy
