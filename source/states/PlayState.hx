@@ -55,10 +55,6 @@ class PlayState extends FlxState {
 		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
 
-		if (terrain != null) {
-			player.listen(terrain);
-		}
-
 		if (player != null) {
 			FlxG.camera.follow(player);
 			FlxG.camera.followLead.set(50, 50);
@@ -158,6 +154,8 @@ class PlayState extends FlxState {
 				}
 			}
 		}
+
+		player.listen(terrain);
 	}
 
 	function placePlayer() {
