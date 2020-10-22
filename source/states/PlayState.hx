@@ -50,6 +50,11 @@ class PlayState extends FlxState {
 		Toolkit.init();
 		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
 
+		terrain = new FlxGroup();
+		add(terrain);
+		bouncers = new FlxGroup();
+		add(bouncers);
+
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
 		add(uiView);
 		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
@@ -100,6 +105,13 @@ class PlayState extends FlxState {
 	}
 
 	function generateCaveTilemap() {
+		terrain.kill();
+		terrain.clear();
+		bouncers.kill();
+		bouncers.clear();
+
+		terrain.revive();
+
 		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
 
@@ -108,13 +120,6 @@ class PlayState extends FlxState {
 			width: levelData[0].length * TILE_SIZE, // Make the size of your Echo world equal the size of your play field
 			height: levelData.length * TILE_SIZE,
 		});
-
-		// Normal, every day FlxGroups!
-		terrain = new FlxGroup();
-		add(terrain);
-
-		bouncers = new FlxGroup();
-		add(bouncers);
 
 		// We'll use Echo's TileMap utility to generate physics bodies for our Tilemap - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
 		var tiles = TileMap.generate(levelData.flatten2DArray(), TILE_SIZE, TILE_SIZE, levelData[0].length, levelData.length, 0, 0, 1, null, [2, 3]);
@@ -158,9 +163,7 @@ class PlayState extends FlxState {
 		player.listen(terrain);
 	}
 
-	function placePlayer() {
-		
-	}
+	function placePlayer() {}
 }
 
 /**
