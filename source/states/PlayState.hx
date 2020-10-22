@@ -1,5 +1,6 @@
 package states;
 
+import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.core.Component;
 import haxe.ui.macros.ComponentMacros;
 import haxe.ui.components.*;
@@ -36,12 +37,73 @@ class PlayState extends FlxState {
 
 	var levelData:Array<Array<Int>>;
 
+	var terrain:FlxGroup;
+	var bouncers:FlxGroup;
+
 	/**
 	 * Our UI using haxeui, this contains the list of components and all.
 	 */
 	var uiView:Component;
 
 	override function create() {
+		/// UI STUFF
+		Toolkit.init();
+		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
+
+		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
+		add(uiView);
+		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
+		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
+
+		if (terrain != null) {
+			player.listen(terrain);
+		}
+
+		if (player != null) {
+			FlxG.camera.follow(player);
+			FlxG.camera.followLead.set(50, 50);
+			FlxG.camera.followLerp = 0.01;
+		}
+		if (levelData != null) {
+			FlxG.camera.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
+		}
+		FlxG.camera.zoom = 1;
+
+		/* Other collisions
+			// Our second physics listener collides our player with the bouncers group.
+			player.listen(bouncers, {
+				// We'll add this listener option - every frame our player object is colliding with a bouncer in the bouncers group we'll run this function
+				stay: (a, b,
+					c) ->
+				{ // where a is our first physics body (`player`), b is the physics body it's colliding with (`orangebox`), and c is an array of collision data.
+						// for every instance of collision data
+							for (col in c) {
+								// This checks to see if the normal of our collision is pointing downward - you could use it for hop and bop games to see if a player has stomped on an enemy!
+								if (col.normal.dot(Vector2.yAxis).round() == 1) {
+									// set the player's velocity to go up!
+									a.velocity.y = -10000;
+									// animate the orange box!
+									var b_object:FlxSprite = cast b.get_object();
+									b_object.scale.y = 1.5;
+									FlxTween.tween(b_object.scale, { y: 1 }, 0.5, { ease: FlxEase.elasticOut });
+								}
+						}
+					}
+			});
+		 */
+	}
+
+	function btn_generateCave_onClick(_) {
+		var item = uiView.findComponent("btn_gen_cave", MenuItem); // need to specify component type if you want field completion after
+		generateCaveTilemap();
+	}
+
+	function btn_placePlayer_onClick(_) {
+		var item = uiView.findComponent("btn_place_player", MenuItem); // need to specify component type if you want field completion after
+		placePlayer();
+	}
+
+	function generateCaveTilemap() {
 		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
 
@@ -52,10 +114,10 @@ class PlayState extends FlxState {
 		});
 
 		// Normal, every day FlxGroups!
-		var terrain = new FlxGroup();
+		terrain = new FlxGroup();
 		add(terrain);
 
-		var bouncers = new FlxGroup();
+		bouncers = new FlxGroup();
 		add(bouncers);
 
 		// We'll use Echo's TileMap utility to generate physics bodies for our Tilemap - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
@@ -70,7 +132,7 @@ class PlayState extends FlxState {
 		}
 
 		// We'll step through our level data and add objects that way
-		for (j in 0...levelData.length)
+		for (j in 0...levelData.length) {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
 					case 2:
@@ -95,57 +157,11 @@ class PlayState extends FlxState {
 						continue;
 				}
 			}
-
-		// lets add some ramps too! They'll belong to the same collision group as the blue boxes we made earlier.
-		/*for (i in 0...8) {
-			var ramp = new Ramp(16, 112 + i * 16, 16 + i * 16, 128 - i * 16, NW);
-			ramp.add_to_group(terrain);
-		}*/
-
-		// Our first physics listener collides our player with the terrain group.
-		player.listen(terrain);
-
-		// Our second physics listener collides our player with the bouncers group.
-		//	player.listen(bouncers, {
-		//	// We'll add this listener option - every frame our player object is colliding with a bouncer in the bouncers group we'll run this function
-		//		stay: (a, b,
-		//			c) ->
-		//		{ // where a is our first physics body (`player`), b is the physics body it's colliding with (`orangebox`), and c is an array of collision data.
-		//				/*// for every instance of collision data
-		//					for (col in c) {
-		//						// This checks to see if the normal of our collision is pointing downward - you could use it for hop and bop games to see if a player has stomped on an enemy!
-		//						if (col.normal.dot(Vector2.yAxis).round() == 1) {
-		//							// set the player's velocity to go up!
-		//							a.velocity.y = -10000;
-		//							// animate the orange box!
-		//							var b_object:FlxSprite = cast b.get_object();
-		//							b_object.scale.y = 1.5;
-		//							FlxTween.tween(b_object.scale, { y: 1 }, 0.5, { ease: FlxEase.elasticOut });
-		//						}
-		//				}*/
-		//				a.velocity.y = -4000;
-		//			}
-		//	});
-
-		FlxG.camera.follow(player);
-		FlxG.camera.zoom = 1;
-		FlxG.camera.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
-		FlxG.camera.followLead.set(50, 50);
-		FlxG.camera.followLerp = 0.01;
-
-		/// UI STUFF
-		Toolkit.init();
-		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
-
-		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
-		add(uiView);
-		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
-		uiView.findComponent("btn_gen", Button).onClick = btn_generate_onClick;
+		}
 	}
 
-	function btn_generate_onClick(_) {
-		var btn = uiView.findComponent("btn_gen", Button); // need to specify component type if you want field completion after
-		btn.text = "I got clicked!";
+	function placePlayer() {
+		
 	}
 }
 

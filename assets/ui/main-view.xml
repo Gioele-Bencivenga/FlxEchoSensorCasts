@@ -1,39 +1,24 @@
-<vbox style="padding: 5px;spacing:10px;">
-	<style>
-		.bordered {
-			border: 1px solid #a9c4e2;
-			padding: 5px;
-		}
-	</style>
-	<hbox continuous="false" styleNames="bordered">
-		<button id="btn_gen" text="Generate" />
-		<button text="Button 2" />
-		<button text="Button 3" />
-	</hbox>
-	<hbox width="300" continuous="true" styleNames="bordered">
-		<button text="Button 1" />
-		<button text="Button 2" />
-		<button text="Button 3" />
-		<button text="Button 4" />
-		<button text="Button 5" />
-		<button text="A longer button label" />
-		<button text="Button 6" />
-		<button text="Button 7" />
-	</hbox>
-	<vbox styleNames="bordered">
-		<button text="Button 1" />
-		<button text="Button 2" />
-		<button text="Button 3" />
-	</vbox>
-	<grid columns="3" styleNames="bordered">
-		<button text="Button 1" />
-		<button width="100%" text="Button 2" />
-		<button text="Button 3" />
-		<button height="100%" text="Button 4" />
-		<button width="100" height="100" text="Button 5" />
-		<button text="Button 6" verticalAlign="center" />
-		<button text="Button 7" />
-		<button text="Button 8" horizontalAlign="center" />
-		<button text="Button 9" />
-	</grid>
+<vbox width="100%">
+	<menubar width="100%">
+		<menu text="World">
+			<menu text="Generate New">
+				<menuitem id="btn_gen_cave" text="Cave" />
+				<menuitem id="btn_gen_island" text="Island" />
+				<menuitem id="btn_gen_random" text="Random" />
+				<menuseparator />
+				<menucheckbox text="Item 4" />
+				<menucheckbox text="Item 5" />
+				<menucheckbox text="Item 6" />
+			</menu>
+			<menuitem id="btn_clear_world" text="Clear" />
+			<menuseparator />
+			<menuitem id="btn_place_player" text="Place Player" />
+		</menu>
+		<menu text="Edit">
+			<menuitem text="Item 1" />
+		</menu>
+		<menu text="Help">
+			<menuitem text="Item 1" />
+		</menu>
+	</menubar>
 </vbox>
