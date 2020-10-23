@@ -27,7 +27,6 @@ using hxmath.math.Vector2;
 using flixel.util.FlxArrayUtil;
 using flixel.util.FlxSpriteUtil;
 
-
 class PlayState extends FlxState {
 	/// CONSTANTS
 	public static inline final TILE_SIZE = 32;
@@ -60,16 +59,6 @@ class PlayState extends FlxState {
 		add(uiView);
 		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
-
-		if (player != null) {
-			FlxG.camera.follow(player);
-			FlxG.camera.followLead.set(50, 50);
-			FlxG.camera.followLerp = 0.01;
-		}
-		if (levelData != null) {
-			FlxG.camera.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
-		}
-		FlxG.camera.zoom = 1;
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -162,6 +151,12 @@ class PlayState extends FlxState {
 		}
 
 		player.listen(terrain);
+
+		FlxG.camera.follow(player);
+		FlxG.camera.followLead.set(50, 50);
+		FlxG.camera.followLerp = 0.01;
+		FlxG.camera.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
+		FlxG.camera.zoom = 1;
 	}
 
 	function placePlayer() {}
