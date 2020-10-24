@@ -41,6 +41,16 @@ class PlayState extends FlxState {
 	var bouncers:FlxGroup;
 
 	/**
+	 * Simulation camera, the camera displaying the simulation.
+	 */
+	var simCam:FlxCamera;
+
+	/**
+	 * UI camera, the camera displaying the interface indipendently from zoom.
+	 */
+	var uiCam:FlxCamera;
+
+	/**
 	 * Our UI using haxeui, this contains the list of components and all.
 	 */
 	var uiView:Component;
@@ -95,12 +105,8 @@ class PlayState extends FlxState {
 	}
 
 	function generateCaveTilemap() {
-		terrain.kill();
-		terrain.clear();
-		bouncers.kill();
-		bouncers.clear();
-
-		terrain.revive();
+		// reset the groups to fill them again
+		emptyGroups([terrain, bouncers]);
 
 		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
@@ -152,14 +158,49 @@ class PlayState extends FlxState {
 
 		player.listen(terrain);
 
-		FlxG.camera.follow(player);
-		FlxG.camera.followLead.set(50, 50);
-		FlxG.camera.followLerp = 0.01;
-		FlxG.camera.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
-		FlxG.camera.zoom = 1;
+		/// CAMERA SETUP
+		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		simCam.bgColor = FlxColor.BLACK;
+		simCam.zoom = 0.6;
+		simCam.follow(player);
+		simCam.followLead.set(50, 50);
+		simCam.followLerp = 0.01;
+		simCam.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
+
+		FlxG.cameras.reset(simCam);
+		FlxCamera.defaultCameras = [simCam];
+		
+		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		uiCam.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(uiCam);		
+
+		uiView.cameras = [uiCam];
+		uiView.scrollFactor.set(0, 0);
+
+		//uiView.forEach(function(element) {
+		//	element.cameras = [uiCam];
+		//});
 	}
 
 	function placePlayer() {}
+
+	/**
+	 * This function `kill()`s, `clear()`s and `revive()`s the passed groups.
+	 *
+	 * It's mostly used when re generating the world.
+	 *
+	 * I think doing this resets the groups and it helped fix a bug with collision when regenerating the map.
+	 * If you read this and you know that I could do this better please let me know!
+	 *
+	 * @param groupsToEmpty an array containing the `FlxGroup`s that you want to reset.
+	 */
+	function emptyGroups(groupsToEmpty:Array<FlxGroup>) {
+		for (group in groupsToEmpty) {
+			group.kill();
+			group.clear();
+			group.revive();
+		}
+	}
 }
 
 /**

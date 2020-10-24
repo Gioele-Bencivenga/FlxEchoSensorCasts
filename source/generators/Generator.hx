@@ -22,8 +22,8 @@ class Generator {
 	 * Instantiate a new generator, specifying the default width and height of the levels it will generate.
 	 *
 	 * Both can be overridden when generating a level thanks to optional arguments.
-	 * @param _levelWidth the number of tiles/cells in width that the generated level will have.
-	 * @param _levelHeight the number of tiles/cells in height that the generated level will have.
+	 * @param _levelWidth the number of tiles/cells in width that the generated level will have
+	 * @param _levelHeight the number of tiles/cells in height that the generated level will have
 	 */
 	public function new(_levelWidth:Int, _levelHeight:Int) {
 		levelWidth = _levelWidth;
@@ -32,7 +32,6 @@ class Generator {
 
 	/**
 	 * Generates a matrix of 0s and applies to each of them a chance of turning alive.
-	 *
 	 * @param aliveChance the chance that a cell will turn alive
 	 * @return a tilemap of type `Array<Array<Int>>` where each cell can assume `Int` values
 	 */
@@ -59,8 +58,8 @@ class Generator {
 
 	/**
 	 * Places the player in one of the empty tiles of the level that's passed in.
-	 * @param _levelData the level we want to place the player in.
-	 * @return returns the modified `_levelData` that was passed in.
+	 * @param _levelData the level we want to place the player in
+	 * @return returns the modified `_levelData` that was passed in
 	 */
 	function placePlayer(_levelData:Array<Array<Int>>):Array<Array<Int>> {
 		var playerPlaced = false;
@@ -95,9 +94,8 @@ class Generator {
 	 * Generates a matrix that will be used to generate the game world using a cellular automaton.
 	 *
 	 * Tweak the parameters to obtain different results, although it should generally resemble a cave system.
-	 * 
-	 * Watch out, this algorithm doesn't guarantee all parts of the cave will be accessible!
 	 *
+	 * Watch out, this algorithm doesn't guarantee all parts of the cave will be accessible!
 	 * @param _aliveChance = 0.4 the probability that a cell will start out alive
 	 * @param _deathLimit = 3 the minimum number of neighbours needed kill a cell
 	 * @param _birthLimit = 4 the minimum number of neighbours needed to make a cell alive
@@ -107,7 +105,7 @@ class Generator {
 	 * @param ?_levelHeight if specified overrides the height that was given to the `Generator` on creation
 	 * @return a matrix of `Int`s that's hopefully similar in shape to a cave
 	 */
-	public function generateCave(_aliveChance = 0.25, _deathLimit = 2, _birthLimit = 3, _stepNumber = 10, ?_levelWidth:Int,
+	public function generateCave(_aliveChance = 0.25, _deathLimit = 2, _birthLimit = 3, _stepNumber = 7, ?_levelWidth:Int,
 			?_levelHeight:Int):Array<Array<Int>> {
 		// if new dimensions were passed in we modify them
 		if (_levelWidth != null)
@@ -120,6 +118,8 @@ class Generator {
 
 		// fill the matrix with random values
 		levelData = generateRandom(_aliveChance);
+		// fill the edges of the matrix with alive cells to ensure an enclosed world
+		levelData = fillEdges(levelData);
 		// run the cellular automaton for a set number of steps
 		for (i in 0..._stepNumber) {
 			levelData = doStep(levelData, _deathLimit, _birthLimit);
@@ -134,7 +134,6 @@ class Generator {
 	 * Returns the number of cells around the one provided that are currently alive.
 	 *
 	 * We also check diagonals, so a max of 8 (cells) can be returned.
-	 *
 	 * @param _levelData the level where you want to count the neighbours in
 	 * @param _cellX the X coordinate of the cell you want to count the neighbours of
 	 * @param _cellY the Y coordinate of the cell you want to count the neighbours of
@@ -167,7 +166,6 @@ class Generator {
 	 * Applies the cellular automaton rules for a step of the simulation.
 	 *
 	 * Tweak `_deathLimit` and `_birthLimit` to change how many cells die or are born.
-	 *
 	 * @param _previousLevel the current map to which you want to apply the simulation step
 	 * @param _deathLimit if a cell has less neighbours than this number, it dies (turns to 0)
 	 * @param _birthLimit if a cell has more neighbours than this number, it's born (turns to 1)
@@ -177,7 +175,7 @@ class Generator {
 		// if we modify the same matrix we read from the generation will mess up, so here we instantiate our new, modified level
 		var newLevel:Array<Array<Int>> = [for (x in 0...levelWidth) [for (y in 0...levelHeight) 0]];
 
-		// we loop over the level that was passed in
+		// we run the simulation according to the rules on each cell
 		for (x in 0...levelWidth) {
 			for (y in 0...levelHeight) {
 				// we count the neighbours of each cell
@@ -200,5 +198,25 @@ class Generator {
 		}
 
 		return newLevel;
+	}
+
+	/**
+	 * Fills the edges of a matrix with alive cells.
+	 * @param level the level you want to fill the edges of
+	 */
+	function fillEdges(level:Array<Array<Int>>) {
+		// we fill the edges to ensure and enclosed map
+		for (x in 0...level.length) {
+			for (y in 0...level[0].length) {
+				if (x == 0 || y == 0) {
+					level[x][y] = 1;
+				}
+				if (x == level.length - 1 || y == level[0].length - 1) {
+					level[x][y] = 1;
+				}
+			}
+		}
+
+		return level;
 	}
 }
