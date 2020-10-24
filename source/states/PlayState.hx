@@ -168,18 +168,26 @@ class PlayState extends FlxState {
 		simCam.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
 
 		FlxG.cameras.reset(simCam);
-		FlxCamera.defaultCameras = [simCam];
-		
+
 		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
 		uiCam.bgColor = FlxColor.TRANSPARENT;
-		FlxG.cameras.add(uiCam);		
+		FlxG.cameras.add(uiCam);
+
+		FlxCamera.defaultCameras = [simCam];
 
 		uiView.cameras = [uiCam];
 		uiView.scrollFactor.set(0, 0);
 
-		//uiView.forEach(function(element) {
-		//	element.cameras = [uiCam];
-		//});
+		/* doesn't work
+			for (component in uiView) {
+				component.cameras = [uiCam];
+			}
+		 */
+		/* doesn't work
+			uiView.forEach(function(element) {
+				element.cameras = [uiCam];
+			});
+		 */
 	}
 
 	function placePlayer() {}
