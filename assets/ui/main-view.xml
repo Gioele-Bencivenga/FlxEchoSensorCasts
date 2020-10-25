@@ -20,5 +20,7 @@
 		<menu text="Help">
 			<menuitem text="Item 1" />
 		</menu>
+		<label text="Zoom: " verticalAlign="center" />
+		<label id="lbl_zoom" text="0" verticalAlign="center" />
 	</menubar>
 </vbox>

@@ -60,17 +60,27 @@ class PlayState extends FlxState {
 		Toolkit.init();
 		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
 
+		setupCameras();
+
 		terrain = new FlxGroup();
 		add(terrain);
+		terrain.cameras = [simCam];
 		bouncers = new FlxGroup();
 		add(bouncers);
+		bouncers.cameras = [simCam];
 
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
+		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
+		uiView.scrollFactor.set(0, 0); // and they won't scroll
 		add(uiView);
 		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
 
-		setupCameras();
+		var ui1 = ComponentMacros.buildComponent("assets/ui/ui1.xml");
+		ui1.top = 15;
+		ui1.left = FlxG.width - ui1.width - 15;
+		ui1.cameras = [uiCam];
+		add(ui1);
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -115,12 +125,38 @@ class PlayState extends FlxState {
 			FlxEcho.updates = true;
 	}
 
+	function setupCameras() {
+		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
+		simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
+
+		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
+		// FlxCamera.defaultCameras = [simCam]; // strange stuff seems to happen with this
+
+		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the ui camera
+		uiCam.bgColor = FlxColor.TRANSPARENT; // transparent so we see what's behind it
+		FlxG.cameras.add(uiCam); // add it to the cameras list (simCam doesn't need because we set it as the main already)
+	}
+
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		var zoomLbl = uiView.findComponent("lbl_zoom", Label);
+		zoomLbl.text = Std.string(FlxG.camera.zoom);
+
+		if (FlxG.mouse.wheel != 0) {
+			simCam.zoom += (FlxG.mouse.wheel / 1000);
+		}
+	}
+
 	function generateCaveTilemap() {
 		// reset the groups to fill them again
 		emptyGroups([terrain, bouncers]);
 
 		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
+
+		// set the camera scroll bounds to the world's dimensions
+		simCam.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
 
 		// First thing we want to do before creating any physics objects is init() our Echo world.
 		FlxEcho.init({
@@ -168,35 +204,13 @@ class PlayState extends FlxState {
 		}
 
 		player.listen(terrain);
-
-		setupCameras();
-		simCam.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
-	}
-
-	function placePlayer() {}
-
-	function setupCameras() {
-		if (simCam != null)
-			simCam = null;
-		if (uiCam != null)
-			uiCam = null;
-		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
-		simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
-		simCam.zoom = 0.6; // zoom back a bit
+		player.cameras = [simCam];
 		simCam.follow(player); // follow the player
 		simCam.followLead.set(50, 50);
 		simCam.followLerp = 0.01;
-
-		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
-		FlxCamera.defaultCameras = [simCam]; // set the simulation camera as the default one
-
-		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the ui camera
-		uiCam.bgColor = FlxColor.TRANSPARENT; // transparent so we see what's behind it
-		FlxG.cameras.add(uiCam); // add it to the cameras list (simCam doesn't need because we set it as the main already)
-
-		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
-		uiView.scrollFactor.set(0, 0); // and they won't scroll
 	}
+
+	function placePlayer() {}
 
 	/**
 	 * This function `kill()`s, `clear()`s and `revive()`s the passed groups.

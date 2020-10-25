@@ -1,0 +1,24 @@
+<vbox width="180" styleName="panel">
+    <style>
+        .panel {
+            background-image: "haxeui-flixel/styles/default/images/button.png";
+            background-image-clip: 0px 0px 18px 18px;
+            background-image-slice: 5px 5px 13px 13px;
+            padding: 5px;
+        }
+    </style>
+    <label id="mousePos" />
+    <button text="Button" width="100%" />
+    <hbox width="100%">
+        <button text="Button" width="50%" />
+        <button text="Button" width="50%" />
+    </hbox>
+    <button text="Button" width="100%" />
+    <hbox width="100%">
+        <button text="Button" width="33%" />
+        <button text="Button" width="34%" />
+        <button text="Button" width="33%" />
+    </hbox>
+    <button text="Button" width="100%" />
+    <button text="Button" />
+</vbox>
