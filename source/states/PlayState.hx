@@ -177,17 +177,6 @@ class PlayState extends FlxState {
 
 		uiView.cameras = [uiCam];
 		uiView.scrollFactor.set(0, 0);
-
-		/* doesn't work
-			for (component in uiView) {
-				component.cameras = [uiCam];
-			}
-		 */
-		/* doesn't work
-			uiView.forEach(function(element) {
-				element.cameras = [uiCam];
-			});
-		 */
 	}
 
 	function placePlayer() {}
