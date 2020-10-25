@@ -106,6 +106,15 @@ class PlayState extends FlxState {
 		placePlayer();
 	}
 
+	function btn_playPause_onClick(_) {
+		var item = uiView.findComponent("btn_play_pause" /*, Type*/);
+
+		if (FlxEcho.updates)
+			FlxEcho.updates = false;
+		else
+			FlxEcho.updates = true;
+	}
+
 	function generateCaveTilemap() {
 		// reset the groups to fill them again
 		emptyGroups([terrain, bouncers]);
