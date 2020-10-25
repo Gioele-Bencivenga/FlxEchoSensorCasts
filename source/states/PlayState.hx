@@ -70,6 +70,24 @@ class PlayState extends FlxState {
 		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
 
+		/// CAMERA SETUP
+		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		simCam.bgColor = FlxColor.BLACK;
+		simCam.zoom = 0.6;
+		simCam.followLead.set(50, 50);
+		simCam.followLerp = 0.01;
+
+		FlxG.cameras.reset(simCam);
+
+		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		uiCam.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(uiCam);
+
+		FlxCamera.defaultCameras = [simCam];
+
+		uiView.cameras = [uiCam];
+		uiView.scrollFactor.set(0, 0);
+
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
 			player.listen(bouncers, {
@@ -159,24 +177,8 @@ class PlayState extends FlxState {
 		player.listen(terrain);
 
 		/// CAMERA SETUP
-		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		simCam.bgColor = FlxColor.BLACK;
-		simCam.zoom = 0.6;
 		simCam.follow(player);
-		simCam.followLead.set(50, 50);
-		simCam.followLerp = 0.01;
 		simCam.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
-
-		FlxG.cameras.reset(simCam);
-
-		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		uiCam.bgColor = FlxColor.TRANSPARENT;
-		FlxG.cameras.add(uiCam);
-
-		FlxCamera.defaultCameras = [simCam];
-
-		uiView.cameras = [uiCam];
-		uiView.scrollFactor.set(0, 0);
 	}
 
 	function placePlayer() {}
