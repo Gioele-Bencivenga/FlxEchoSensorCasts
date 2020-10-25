@@ -70,23 +70,7 @@ class PlayState extends FlxState {
 		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
 
-		/// CAMERA SETUP
-		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		simCam.bgColor = FlxColor.BLACK;
-		simCam.zoom = 0.6;
-		simCam.followLead.set(50, 50);
-		simCam.followLerp = 0.01;
-
-		FlxG.cameras.reset(simCam);
-
-		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		uiCam.bgColor = FlxColor.TRANSPARENT;
-		FlxG.cameras.add(uiCam);
-
-		FlxCamera.defaultCameras = [simCam];
-
-		uiView.cameras = [uiCam];
-		uiView.scrollFactor.set(0, 0);
+		setupCameras();
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -176,12 +160,34 @@ class PlayState extends FlxState {
 
 		player.listen(terrain);
 
-		/// CAMERA SETUP
-		simCam.follow(player);
+		setupCameras();
 		simCam.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
 	}
 
 	function placePlayer() {}
+
+	function setupCameras() {
+		if (simCam != null)
+			simCam = null;
+		if (uiCam != null)
+			uiCam = null;
+		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
+		simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
+		simCam.zoom = 0.6; // zoom back a bit
+		simCam.follow(player); // follow the player
+		simCam.followLead.set(50, 50);
+		simCam.followLerp = 0.01;
+
+		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
+		FlxCamera.defaultCameras = [simCam]; // set the simulation camera as the default one
+
+		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the ui camera
+		uiCam.bgColor = FlxColor.TRANSPARENT; // transparent so we see what's behind it
+		FlxG.cameras.add(uiCam); // add it to the cameras list (simCam doesn't need because we set it as the main already)
+
+		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
+		uiView.scrollFactor.set(0, 0); // and they won't scroll
+	}
 
 	/**
 	 * This function `kill()`s, `clear()`s and `revive()`s the passed groups.
@@ -200,41 +206,4 @@ class PlayState extends FlxState {
 			group.revive();
 		}
 	}
-}
-
-/**
- * NOT USED at the moment, might break
- */
-class Ramp extends FlxSprite {
-	public function new(x:Float, y:Float, w:Int, h:Int, d:RampDirection) {
-		trace('$x / $y / $w / $h');
-		super(x, y);
-		makeGraphic(w, h, 0x00FFFFFF);
-		var verts = [[0, 0], [w, 0], [w, h], [0, h]];
-		switch d {
-			case NE:
-				verts.splice(0, 1);
-			case NW:
-				verts.splice(1, 1);
-			case SE:
-				verts.splice(3, 1);
-			case SW:
-				verts.splice(2, 1);
-		}
-		this.drawPolygon([for (v in verts) FlxPoint.get(v[0], v[1])], 0xFFFF0080);
-		this.add_body({
-			mass: 0,
-			shape: {
-				type: POLYGON,
-				vertices: [for (v in verts) new Vector2(v[0] - w * 0.5, v[1] - h * 0.5)],
-			}
-		});
-	}
-}
-
-enum RampDirection {
-	NE;
-	NW;
-	SE;
-	SW;
 }
