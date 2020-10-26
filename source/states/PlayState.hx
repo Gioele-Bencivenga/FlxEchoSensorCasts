@@ -144,7 +144,7 @@ class PlayState extends FlxState {
 		zoomLbl.text = Std.string(FlxG.camera.zoom);
 
 		if (FlxG.mouse.wheel != 0) {
-			simCam.zoom += (FlxG.mouse.wheel / 900);
+			simCam.zoom += (FlxG.mouse.wheel / 600);
 		}
 	}
 
