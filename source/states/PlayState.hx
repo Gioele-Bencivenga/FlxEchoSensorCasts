@@ -1,5 +1,6 @@
 package states;
 
+import flixel.addons.display.FlxZoomCamera;
 import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.core.Component;
 import haxe.ui.macros.ComponentMacros;
@@ -43,7 +44,7 @@ class PlayState extends FlxState {
 	/**
 	 * Simulation camera, the camera displaying the simulation.
 	 */
-	var simCam:FlxCamera;
+	var simCam:FlxZoomCamera;
 
 	/**
 	 * UI camera, the camera displaying the interface indipendently from zoom.
@@ -75,12 +76,6 @@ class PlayState extends FlxState {
 		add(uiView);
 		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
-
-		var ui1 = ComponentMacros.buildComponent("assets/ui/ui1.xml");
-		ui1.top = 15;
-		ui1.left = FlxG.width - ui1.width - 15;
-		ui1.cameras = [uiCam];
-		add(ui1);
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -126,8 +121,10 @@ class PlayState extends FlxState {
 	}
 
 	function setupCameras() {
-		simCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
-		simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
+		simCam = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
+		simCam.zoomSpeed = 1;
+		simCam.zoomMargin = 0;
+		// simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
 
 		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
 		// FlxCamera.defaultCameras = [simCam]; // strange stuff seems to happen with this
@@ -140,11 +137,11 @@ class PlayState extends FlxState {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		var zoomLbl = uiView.findComponent("lbl_zoom", Label);
-		zoomLbl.text = Std.string(FlxG.camera.zoom);
+		var zoomBtn = uiView.findComponent("btn_zoom", Button);
+		zoomBtn.text = 'Zoom: ${Std.string(simCam.targetZoom)}';
 
 		if (FlxG.mouse.wheel != 0) {
-			simCam.zoom += (FlxG.mouse.wheel / 600);
+			simCam.targetZoom += (FlxG.mouse.wheel / 400);
 		}
 	}
 
@@ -205,9 +202,7 @@ class PlayState extends FlxState {
 
 		player.listen(terrain);
 		player.cameras = [simCam];
-		simCam.follow(player); // follow the player
-		simCam.followLead.set(50, 50);
-		simCam.followLerp = 0.01;
+		simCam.follow(player, FlxCameraFollowStyle.TOPDOWN_TIGHT);
 	}
 
 	function placePlayer() {}

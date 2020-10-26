@@ -1,4 +1,13 @@
 <vbox width="100%">
+	<style>
+		.menubar-button, .menu .label, {
+			font-size: 15px;
+		}
+
+		.box {
+			background-color: grey,
+		}
+	</style>
 	<menubar width="100%">
 		<menu text="World">
 			<menu text="Generate New">
@@ -20,7 +29,10 @@
 		<menu text="Help">
 			<menuitem text="Item 1" />
 		</menu>
-		<label text="Zoom: " verticalAlign="center" />
-		<label id="lbl_zoom" text="0" verticalAlign="center" />
 	</menubar>
+	<hbox>
+		<button text="-" />
+		<button id="btn_zoom" text="Zoom: 0" />
+		<button text="+" />
+	</hbox>
 </vbox>
