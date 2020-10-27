@@ -122,7 +122,7 @@ class PlayState extends FlxState {
 
 	function setupCameras() {
 		simCam = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
-		simCam.zoomSpeed = 1;
+		simCam.zoomSpeed = 3;
 		simCam.zoomMargin = 0;
 		// simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
 
@@ -151,9 +151,6 @@ class PlayState extends FlxState {
 
 		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
-
-		// set the camera scroll bounds to the world's dimensions
-		simCam.setScrollBoundsRect(0, 0, levelData[0].length * TILE_SIZE, levelData.length * TILE_SIZE);
 
 		// First thing we want to do before creating any physics objects is init() our Echo world.
 		FlxEcho.init({
@@ -202,7 +199,8 @@ class PlayState extends FlxState {
 
 		player.listen(terrain);
 		player.cameras = [simCam];
-		simCam.follow(player, FlxCameraFollowStyle.TOPDOWN_TIGHT);
+		simCam.follow(player);
+		simCam.followLerp = 0.2;
 	}
 
 	function placePlayer() {}
