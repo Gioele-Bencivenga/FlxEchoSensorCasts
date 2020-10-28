@@ -1,7 +1,5 @@
 package tiles;
 
-import flixel.util.FlxColor;
-import echo.Body;
 import flixel.FlxSprite;
 
 using utilities.FlxEcho;

@@ -35,9 +35,9 @@ class Entity extends FlxSprite {
 	var speed:Int;
 
 	/**
-	 * Minimum velocity that when reached allows the Entity to move again.
+	 * Maximum speed an `Entity` can move at.
 	 */
-	var minVel:Float;
+	var maxSpeed:Float;
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y);
@@ -46,7 +46,6 @@ class Entity extends FlxSprite {
 		direction = new Vector2(0, 0);
 
 		speed = 50;
-		minVel = 110;
 	}
 
 	override function update(elapsed:Float) {
@@ -57,10 +56,7 @@ class Entity extends FlxSprite {
 	}
 
 	function handleMovement() {
-		if (this.get_body().velocity.length < minVel) {
-			direction.multiplyWith(speed);
-			this.get_body().velocity.addWith(direction);
-		}
+		
 	}
 
 	/**
