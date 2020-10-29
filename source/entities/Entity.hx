@@ -17,6 +17,14 @@ class Entity extends FlxSprite {
 	 */
 	public static inline final MAX_ROTATIONAL_VELOCITY = 1000;
 
+	/**
+	 * The desired velocity vector this entity has regarding the target it wants to reach.
+	 */
+	var desiredVel:Vector2;
+
+	/**
+	 * The actual direction of the entity, calculated from subtracting the desired and actual velocity of this entity.
+	 */
 	var direction:Vector2;
 
 	/**
@@ -30,11 +38,6 @@ class Entity extends FlxSprite {
 	var isMoving:Bool;
 
 	/**
-	 * Speed at which an `Entity` can move.
-	 */
-	var speed:Int;
-
-	/**
 	 * Maximum speed an `Entity` can move at.
 	 */
 	var maxSpeed:Float;
@@ -43,9 +46,10 @@ class Entity extends FlxSprite {
 		super(_x, _y);
 		makeGraphic(_width, _height, _color);
 
-		direction = new Vector2(0, 0);
+		canMove = true;
 
-		speed = 50;
+		desiredVel = new Vector2(0, 0);
+		direction = new Vector2(0, 0);
 	}
 
 	override function update(elapsed:Float) {
@@ -55,9 +59,7 @@ class Entity extends FlxSprite {
 			handleMovement();
 	}
 
-	function handleMovement() {
-		
-	}
+	function handleMovement() {}
 
 	/**
 	 * Killing this object will also remove its physics body.

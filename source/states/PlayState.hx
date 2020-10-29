@@ -1,5 +1,6 @@
 package states;
 
+import flixel.math.FlxMath;
 import flixel.addons.display.FlxZoomCamera;
 import haxe.ui.containers.menus.MenuItem;
 import haxe.ui.core.Component;
@@ -74,8 +75,11 @@ class PlayState extends FlxState {
 		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
 		uiView.scrollFactor.set(0, 0); // and they won't scroll
 		add(uiView);
-		// xml events are for scripting with hscript, you need to do this if you want to call Haxe methods
+		// xml events are for scripting with hscript, so we need to get the generated component from code and assign it to the function
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
+		uiView.findComponent("btn_zoom", Button).onClick = btn_zoom_onClick;
+		uiView.findComponent("btn_zoom_+", Button).onClick = btn_zoomPlus_onClick;
+		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -120,11 +124,26 @@ class PlayState extends FlxState {
 			FlxEcho.updates = true;
 	}
 
+	function btn_zoom_onClick(_) {
+		if (simCam.zoom >= 1)
+			simCam.targetZoom = 0.5;
+		else if (simCam.zoom <= 1) {
+			simCam.targetZoom = 1.2;
+		}
+	}
+
+	function btn_zoomPlus_onClick(_) {
+		simCam.targetZoom += 0.15;
+	}
+
+	function btn_zoomMinus_onClick(_) {
+		simCam.targetZoom -= 0.15;
+	}
+
 	function setupCameras() {
 		simCam = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
-		simCam.zoomSpeed = 3;
-		simCam.zoomMargin = 0;
-		// simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
+		simCam.zoomSpeed = 4;
+		simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
 
 		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
 		// FlxCamera.defaultCameras = [simCam]; // strange stuff seems to happen with this
@@ -141,7 +160,7 @@ class PlayState extends FlxState {
 		zoomBtn.text = 'Zoom: ${Std.string(simCam.targetZoom)}';
 
 		if (FlxG.mouse.wheel != 0) {
-			simCam.targetZoom += (FlxG.mouse.wheel / 400);
+			simCam.targetZoom += FlxMath.bound(FlxG.mouse.wheel, -0.04, 0.04);
 		}
 	}
 

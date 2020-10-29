@@ -31,8 +31,8 @@
 		</menu>
 	</menubar>
 	<hbox>
-		<button text="-" />
+		<button id="btn_zoom_-" text="-" />
 		<button id="btn_zoom" text="Zoom: 0" />
-		<button text="+" />
+		<button id="btn_zoom_+" text="+" />
 	</hbox>
 </vbox>

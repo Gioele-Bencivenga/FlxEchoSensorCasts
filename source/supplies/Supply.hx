@@ -1,4 +1,4 @@
-package resources;
+package supplies;
 
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -7,9 +7,9 @@ import flixel.FlxSprite;
 using utilities.FlxEcho;
 
 /**
- * A resource class that can be depleted via the `hurt()` function and that modifies its dimensions according to its quantity (represented by the `health` variable).
+ * A Supply class that can be depleted via the `hurt()` function and that modifies its dimensions according to its quantity (represented by the `health` variable).
  */
-class Resource extends FlxSprite {
+class Supply extends FlxSprite {
 	/**
 	 * Whether `hurt()` can be called on the object or not.
 	 *
@@ -28,8 +28,8 @@ class Resource extends FlxSprite {
 	}
 
 	/**
-	 * Depletes the resource (`health`) by the specified amount, flips `canBeHurt` to `false` until the damage feedback ends.
-	 * @param _damage the amount we want to deplete the resource by
+	 * Depletes the supply (`health`) by the specified amount, flips `canBeHurt` to `false` until the damage feedback ends.
+	 * @param _damage the amount we want to deplete the supply by
 	 */
 	override function hurt(_damage:Float) {
 		canBeHurt = false;
