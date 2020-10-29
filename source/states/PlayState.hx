@@ -77,6 +77,8 @@ class PlayState extends FlxState {
 		add(uiView);
 		// xml events are for scripting with hscript, so we need to get the generated component from code and assign it to the function
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
+		uiView.findComponent("link_website", MenuItem).onClick = link_website_onClick;
+		uiView.findComponent("link_github", MenuItem).onClick = link_github_onClick;
 		uiView.findComponent("btn_zoom", Button).onClick = btn_zoom_onClick;
 		uiView.findComponent("btn_zoom_+", Button).onClick = btn_zoomPlus_onClick;
 		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
@@ -113,6 +115,14 @@ class PlayState extends FlxState {
 	function btn_placePlayer_onClick(_) {
 		var item = uiView.findComponent("btn_place_player", MenuItem); // need to specify component type if you want field completion after
 		placePlayer();
+	}
+
+	function link_website_onClick(_) {
+		FlxG.openURL("https://gioele-bencivenga.github.io", "_blank");
+	}
+
+	function link_github_onClick(_) {
+		FlxG.openURL("https://github.com/Gioele-Bencivenga/TilemapGen", "_blank");
 	}
 
 	function btn_playPause_onClick(_) {

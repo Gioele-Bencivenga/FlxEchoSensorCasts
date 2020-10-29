@@ -1,11 +1,11 @@
 <vbox width="100%">
 	<style>
-		.menubar-button, .menu .label, {
-			font-size: 15px;
+		.menubar-button, .menu .label {
+			font-size: 16px;
 		}
 
-		.box {
-			background-color: grey,
+		.button{
+			font-size: 14px;
 		}
 	</style>
 	<menubar width="100%">
@@ -26,8 +26,9 @@
 		<menu text="Edit">
 			<menuitem text="Item 1" />
 		</menu>
-		<menu text="Help">
-			<menuitem text="Item 1" />
+		<menu text="About">
+			<menuitem id="link_website" text="My Website" icon="assets/icons/icon_website.png" />
+			<menuitem id="link_github" text="Code on GitHub" icon="assets/icons/icon_github.png" />
 		</menu>
 	</menubar>
 	<hbox>

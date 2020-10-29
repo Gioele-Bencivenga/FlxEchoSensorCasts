@@ -8,27 +8,27 @@ using utilities.FlxEcho;
 
 class Entity extends FlxSprite {
 	/**
-	 * Maximum velocity that this entity's physics body can reach.
+	 * Maximum velocity that this `Entity`'s physics body can reach.
 	 */
 	public static inline final MAX_VELOCITY = 1000;
 
 	/**
-	 * Maximum rotational velocity that this entity's physics body can reach.
+	 * Maximum rotational velocity that this `Entity`'s physics body can reach.
 	 */
 	public static inline final MAX_ROTATIONAL_VELOCITY = 1000;
 
 	/**
-	 * The desired velocity vector this entity has regarding the target it wants to reach.
+	 * The desired velocity vector this `Entity` has regarding the target it wants to reach.
 	 */
 	var desiredVel:Vector2;
 
 	/**
-	 * The actual direction of the entity, calculated from subtracting the desired and actual velocity of this entity.
+	 * The actual direction of the `Entity`, calculated from subtracting the desired and actual velocity of this entity.
 	 */
 	var direction:Vector2;
 
 	/**
-	 * Whether the Entity can move or not.
+	 * Whether the `Entity` can move or not.
 	 */
 	var canMove:Bool;
 
@@ -41,6 +41,11 @@ class Entity extends FlxSprite {
 	 * Maximum speed an `Entity` can move at.
 	 */
 	var maxSpeed:Float;
+
+	/**
+	 * Maximum speed at which the `Entity` is able to steer it course.
+	 */
+	var maxSteerSpeed:Float;
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y);
@@ -59,7 +64,11 @@ class Entity extends FlxSprite {
 			handleMovement();
 	}
 
-	function handleMovement() {}
+	function handleMovement() {
+		direction = desiredVel - this.get_body().velocity;
+
+		this.get_body().push(direction.x, direction.y);
+	}
 
 	/**
 	 * Killing this object will also remove its physics body.
