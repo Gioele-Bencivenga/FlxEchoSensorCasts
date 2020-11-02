@@ -1,5 +1,6 @@
 package supplies;
 
+import flixel.FlxG;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.FlxSprite;
@@ -22,9 +23,14 @@ class Supply extends FlxSprite {
 
 		canBeHurt = true;
 		health = _health;
-		updateSize();
 
-		makeGraphic(Std.int(width), Std.int(height), _color);
+		makeGraphic(Std.int(health * 3), Std.int(health * 3), _color);
+
+		this.add_body({
+			mass: 0.5,
+			drag_length: 500,
+			rotational_drag: 150
+		});
 	}
 
 	/**
@@ -44,13 +50,20 @@ class Supply extends FlxSprite {
 		updateSize();
 	}
 
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		this.get_body().set_position(FlxG.mouse.x, FlxG.mouse.y);
+	}
+
 	/**
 	 * Sets the `width` and `height` of the object according to its current `health`. Flips `canBeHurt` back to `true` when done.
 	 */
 	function updateSize() {
-		FlxTween.tween(this, {
-			width: health * 5,
-			height: health * 5
+		var body = this.get_body();
+		FlxTween.tween(body, {
+			width: health * 3,
+			height: health * 3
 		}, 0.3, {
 			ease: FlxEase.sineIn,
 			onComplete: function(_) {

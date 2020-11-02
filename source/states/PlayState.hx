@@ -1,5 +1,7 @@
 package states;
 
+import entities.AutoEntity;
+import supplies.Supply;
 import flixel.math.FlxMath;
 import flixel.addons.display.FlxZoomCamera;
 import haxe.ui.containers.menus.MenuItem;
@@ -35,11 +37,12 @@ class PlayState extends FlxState {
 
 	var gen:Generator;
 
-	var player:Player;
+	var auto:AutoEntity;
 
 	var levelData:Array<Array<Int>>;
 
 	var terrain:FlxGroup;
+	var entities:FlxGroup;
 	var bouncers:FlxGroup;
 
 	/**
@@ -67,6 +70,9 @@ class PlayState extends FlxState {
 		terrain = new FlxGroup();
 		add(terrain);
 		terrain.cameras = [simCam];
+		entities = new FlxGroup();
+		add(entities);
+		entities.cameras = [simCam];
 		bouncers = new FlxGroup();
 		add(bouncers);
 		bouncers.cameras = [simCam];
@@ -77,11 +83,13 @@ class PlayState extends FlxState {
 		add(uiView);
 		// xml events are for scripting with hscript, so we need to get the generated component from code and assign it to the function
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
+		uiView.findComponent("btn_clear_world", MenuItem).onClick = btn_clearWorld_onClick;
 		uiView.findComponent("link_website", MenuItem).onClick = link_website_onClick;
 		uiView.findComponent("link_github", MenuItem).onClick = link_github_onClick;
 		uiView.findComponent("btn_zoom", Button).onClick = btn_zoom_onClick;
 		uiView.findComponent("btn_zoom_+", Button).onClick = btn_zoomPlus_onClick;
 		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
+		uiView.findComponent("lbl_version", Label).text = haxe.macro.Compiler.getDefine("GAME_VERSION");
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -110,6 +118,10 @@ class PlayState extends FlxState {
 	function btn_generateCave_onClick(_) {
 		var item = uiView.findComponent("btn_gen_cave", MenuItem); // need to specify component type if you want field completion after
 		generateCaveTilemap();
+	}
+
+	function btn_clearWorld_onClick(_) {
+		FlxEcho.clear();
 	}
 
 	function btn_placePlayer_onClick(_) {
@@ -211,25 +223,22 @@ class PlayState extends FlxState {
 						orangebox.add_body({mass: 0}); // Create a new physics body for the Box sprite. We'll pass in body options with mass set to 0 so that it's static
 						orangebox.add_to_group(bouncers);
 					case 3:
-						player = new Player(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2.5), Std.int(TILE_SIZE / 2.5), FlxColor.MAGENTA);
-						player.add_body({
-							mass: 1,
-							drag_length: 500,
-							rotational_drag: 150,
-							max_velocity_length: Entity.MAX_VELOCITY,
-							max_rotational_velocity: Entity.MAX_ROTATIONAL_VELOCITY,
-						});
-						add(player);
+						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2.5), Std.int(TILE_SIZE / 2.5), FlxColor.MAGENTA);
+						auto.add_to_group(entities);
 					default:
 						continue;
 				}
 			}
 		}
 
-		player.listen(terrain);
-		player.cameras = [simCam];
-		simCam.follow(player);
-		simCam.followLerp = 0.2;
+		auto.listen(terrain);
+		//simCam.follow(auto);
+		//simCam.followLerp = 0.2;
+
+		var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 20, FlxColor.CYAN);
+		res.add_to_group(entities);
+
+		auto.assignTarget(res);
 	}
 
 	function placePlayer() {}

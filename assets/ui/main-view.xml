@@ -4,6 +4,10 @@
 			font-size: 16px;
 		}
 
+		.menuitem:hover, .menuitem:selected {
+			background-color: #708090;
+		}
+
 		.button{
 			font-size: 14px;
 		}
@@ -14,10 +18,6 @@
 				<menuitem id="btn_gen_cave" text="Cave" />
 				<menuitem id="btn_gen_island" text="Island" />
 				<menuitem id="btn_gen_random" text="Random" />
-				<menuseparator />
-				<menucheckbox text="Item 4" />
-				<menucheckbox text="Item 5" />
-				<menucheckbox text="Item 6" />
 			</menu>
 			<menuitem id="btn_clear_world" text="Clear" />
 			<menuseparator />
@@ -35,5 +35,9 @@
 		<button id="btn_zoom_-" text="-" />
 		<button id="btn_zoom" text="Zoom: 0" />
 		<button id="btn_zoom_+" text="+" />
+	</hbox>
+	<hbox>
+		<label text="Dev Version: " style="font-size: 14; color: white;" />
+		<label id="lbl_version" style="font-size: 14; color: white;" />
 	</hbox>
 </vbox>

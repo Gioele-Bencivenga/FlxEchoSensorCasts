@@ -20,7 +20,7 @@ class Entity extends FlxSprite {
 	/**
 	 * The desired velocity vector this `Entity` has regarding the target it wants to reach.
 	 */
-	var desiredVel:Vector2;
+	var desiredDirection:Vector2;
 
 	/**
 	 * The actual direction of the `Entity`, calculated from subtracting the desired and actual velocity of this entity.
@@ -52,9 +52,19 @@ class Entity extends FlxSprite {
 		makeGraphic(_width, _height, _color);
 
 		canMove = true;
+		maxSpeed = 70;
+		maxSteerSpeed = 25;
 
-		desiredVel = new Vector2(0, 0);
+		desiredDirection = new Vector2(0, 0);
 		direction = new Vector2(0, 0);
+
+		this.add_body({
+			mass: 1,
+			drag_length: 500,
+			rotational_drag: 150,
+			max_velocity_length: Entity.MAX_VELOCITY,
+			max_rotational_velocity: Entity.MAX_ROTATIONAL_VELOCITY,
+		});
 	}
 
 	override function update(elapsed:Float) {
@@ -65,9 +75,7 @@ class Entity extends FlxSprite {
 	}
 
 	function handleMovement() {
-		direction = desiredVel - this.get_body().velocity;
-
-		this.get_body().push(direction.x, direction.y);
+		
 	}
 
 	/**
