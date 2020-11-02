@@ -34,7 +34,7 @@ class AutoEntity extends Entity {
 
 		// belonging in `Entity.handleMovement()`
 		var steer = desired - this.get_body().velocity;
-		steer.normalizeTo(maxSteerSpeed);
+		steer.clamp(0, maxSteerSpeed);
 
 		this.get_body().push(steer.x, steer.y);
 	}
