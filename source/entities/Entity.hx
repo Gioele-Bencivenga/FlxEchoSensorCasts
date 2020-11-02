@@ -52,8 +52,8 @@ class Entity extends FlxSprite {
 		makeGraphic(_width, _height, _color);
 
 		canMove = true;
-		maxSpeed = 70;
-		maxSteerSpeed = 25;
+		maxSpeed = 40;
+		maxSteerSpeed = 5;
 
 		desiredDirection = new Vector2(0, 0);
 		direction = new Vector2(0, 0);
@@ -70,8 +70,8 @@ class Entity extends FlxSprite {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (canMove)
-			handleMovement();
+		//if (canMove)
+		//	handleMovement();
 	}
 
 	function handleMovement() {

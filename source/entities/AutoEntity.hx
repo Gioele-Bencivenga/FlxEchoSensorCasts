@@ -48,7 +48,7 @@ class AutoEntity extends Entity {
 		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
 		desiredDirection.normalizeTo(maxSpeed);
 
-		// belonging in entity
+		// belonging in `Entity.handleMovement()`
 		direction = desiredDirection - this.get_body().velocity;
 		direction.clamp(0, maxSteerSpeed);
 		this.get_body().push(direction.x, direction.y);

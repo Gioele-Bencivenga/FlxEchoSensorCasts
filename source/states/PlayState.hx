@@ -91,6 +91,9 @@ class PlayState extends FlxState {
 		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
 		uiView.findComponent("lbl_version", Label).text = haxe.macro.Compiler.getDefine("GAME_VERSION");
 
+		generateCaveTilemap();
+		simCam.targetZoom = 1.2;
+
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
 			player.listen(bouncers, {
@@ -232,8 +235,7 @@ class PlayState extends FlxState {
 		}
 
 		auto.listen(terrain);
-		//simCam.follow(auto);
-		//simCam.followLerp = 0.2;
+		simCam.focusOn(auto.getPosition());
 
 		var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 20, FlxColor.CYAN);
 		res.add_to_group(entities);

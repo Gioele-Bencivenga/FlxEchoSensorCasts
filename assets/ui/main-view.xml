@@ -1,4 +1,4 @@
-<vbox width="100%">
+<vbox width="100%" height="100%">
 	<style>
 		.menubar-button, .menu .label {
 			font-size: 16px;
@@ -8,10 +8,15 @@
 			background-color: #708090;
 		}
 
+		#box_version {
+			padding: 6px;
+		}
+
 		.button{
 			font-size: 14px;
 		}
 	</style>
+
 	<menubar width="100%">
 		<menu text="World">
 			<menu text="Generate New">
@@ -31,13 +36,19 @@
 			<menuitem id="link_github" text="Code on GitHub" icon="assets/icons/icon_github.png" />
 		</menu>
 	</menubar>
+
 	<hbox>
 		<button id="btn_zoom_-" text="-" />
 		<button id="btn_zoom" text="Zoom: 0" />
 		<button id="btn_zoom_+" text="+" />
 	</hbox>
-	<hbox>
-		<label text="Dev Version: " style="font-size: 14; color: white;" />
-		<label id="lbl_version" style="font-size: 14; color: white;" />
-	</hbox>
+
+	<box width="100%" height="100%">
+		<vbox verticalAlign="bottom" horizontalAlign="right">
+			<hbox id="box_version">
+				<label text="Dev Version: " style="font-size: 14; color: white;" />
+				<label id="lbl_version" style="font-size: 14; color: white;" />
+			</hbox>
+		</vbox>
+	</box>
 </vbox>
