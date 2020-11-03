@@ -52,8 +52,8 @@ class Entity extends FlxSprite {
 		makeGraphic(_width, _height, _color);
 
 		canMove = true;
-		maxSpeed = 40;
-		maxSteerSpeed = 5;
+		maxSpeed = 350;
+		maxSteerSpeed = 500;
 
 		desiredDirection = new Vector2(0, 0);
 		direction = new Vector2(0, 0);
@@ -70,12 +70,16 @@ class Entity extends FlxSprite {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		//if (canMove)
-		//	handleMovement();
+		if (canMove)
+			handleMovement();
 	}
 
 	function handleMovement() {
-		
+		direction = desiredDirection - this.get_body().velocity;
+		direction.clamp(0, maxSteerSpeed);
+
+		this.get_body().push(direction.x, direction.y);
+		this.get_body().rotation = (Math.PI / 180) * this.get_body().velocity.angle; // we have to convert radians to degrees
 	}
 
 	/**

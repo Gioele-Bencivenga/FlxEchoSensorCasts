@@ -29,14 +29,8 @@ class AutoEntity extends Entity {
 	}
 
 	function seekTarget() {
-		var desired = target.get_body().get_position() - this.get_body().get_position();
-		desired.normalizeTo(maxSpeed);
-
-		// belonging in `Entity.handleMovement()`
-		var steer = desired - this.get_body().velocity;
-		steer.clamp(0, maxSteerSpeed);
-
-		this.get_body().push(steer.x, steer.y);
+		desiredDirection = target.get_body().get_position() - this.get_body().get_position();
+		desiredDirection.normalizeTo(maxSpeed);
 	}
 
 	public function assignTarget(_target:Supply) {

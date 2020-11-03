@@ -202,6 +202,8 @@ class PlayState extends FlxState {
 			height: levelData.length * TILE_SIZE,
 		});
 
+		FlxEcho.reset_acceleration = true;
+
 		// We'll use Echo's TileMap utility to generate physics bodies for our Tilemap - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
 		var tiles = TileMap.generate(levelData.flatten2DArray(), TILE_SIZE, TILE_SIZE, levelData[0].length, levelData.length, 0, 0, 1, null, [2, 3]);
 		for (tile in tiles) {
