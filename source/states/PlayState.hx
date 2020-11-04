@@ -94,7 +94,7 @@ class PlayState extends FlxState {
 		generateCaveTilemap();
 		simCam.targetZoom = 1.2;
 		simCam.zoomMargin = 0.2;
-		simCam.bgColor = FlxColor.GRAY;
+		simCam.bgColor.setRGB(25, 21, 0);
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -210,7 +210,7 @@ class PlayState extends FlxState {
 		var tiles = TileMap.generate(levelData.flatten2DArray(), TILE_SIZE, TILE_SIZE, levelData[0].length, levelData.length, 0, 0, 1, null, [2, 3]);
 		for (tile in tiles) {
 			var bounds = tile.bounds(); // Get the bounds of the generated physics body to create a Box sprite from it
-			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.WHITE);
+			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.fromRGB(230, 240, 245));
 			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
 			wallTile.set_body(tile); // Attach the Generated physics body to the Box sprite
 			wallTile.get_body().mass = 0; // tiles are immovable
@@ -241,7 +241,7 @@ class PlayState extends FlxState {
 		auto.listen(terrain);
 		simCam.follow(auto, 0.2);
 
-		var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 20, FlxColor.CYAN);
+		var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 10, FlxColor.CYAN);
 		res.add_to_group(entities);
 
 		auto.assignTarget(res);
