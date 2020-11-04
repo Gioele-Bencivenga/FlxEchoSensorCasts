@@ -1,5 +1,6 @@
 package entities;
 
+import hxmath.math.MathUtil;
 import flixel.math.FlxVector;
 import hxmath.math.Vector2;
 import flixel.FlxSprite;
@@ -79,7 +80,7 @@ class Entity extends FlxSprite {
 		direction.clamp(0, maxSteerSpeed);
 
 		this.get_body().push(direction.x, direction.y);
-		this.get_body().rotation = (Math.PI / 180) * this.get_body().velocity.angle; // we have to convert radians to degrees
+		this.get_body().rotation = MathUtil.radToDeg(this.get_body().velocity.angle); // we have to convert radians to degrees
 	}
 
 	/**

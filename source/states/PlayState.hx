@@ -230,7 +230,7 @@ class PlayState extends FlxState {
 						orangebox.add_body({mass: 0}); // Create a new physics body for the Box sprite. We'll pass in body options with mass set to 0 so that it's static
 						orangebox.add_to_group(bouncers);
 					case 3:
-						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2.5), Std.int(TILE_SIZE / 2.5), FlxColor.MAGENTA);
+						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2), Std.int(TILE_SIZE / 3), FlxColor.MAGENTA);
 						auto.add_to_group(entities);
 					default:
 						continue;
