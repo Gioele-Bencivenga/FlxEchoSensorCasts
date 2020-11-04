@@ -93,6 +93,8 @@ class PlayState extends FlxState {
 
 		generateCaveTilemap();
 		simCam.targetZoom = 1.2;
+		simCam.zoomMargin = 0.2;
+		simCam.bgColor = FlxColor.GRAY;
 
 		/* Other collisions
 			// Our second physics listener collides our player with the bouncers group.
@@ -237,7 +239,7 @@ class PlayState extends FlxState {
 		}
 
 		auto.listen(terrain);
-		simCam.focusOn(auto.getPosition());
+		simCam.follow(auto, 0.2);
 
 		var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 20, FlxColor.CYAN);
 		res.add_to_group(entities);

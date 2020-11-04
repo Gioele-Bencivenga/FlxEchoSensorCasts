@@ -5,11 +5,17 @@
 		}
 
 		.menuitem:hover, .menuitem:selected {
-			background-color: #708090;
+			background-color: #696969;
 		}
 
 		#box_version {
-			padding: 6px;
+			padding: 8px;
+		}
+
+		#lbl_version, #lbl_versionH {
+			font-size: 14; 
+			color: white;
+			filter: outline(#696969, 2);
 		}
 
 		.button{
@@ -46,8 +52,8 @@
 	<box width="100%" height="100%">
 		<vbox verticalAlign="bottom" horizontalAlign="right">
 			<hbox id="box_version">
-				<label text="Dev Version: " style="font-size: 14; color: white;" />
-				<label id="lbl_version" style="font-size: 14; color: white;" />
+				<label id="lbl_versionH" text="Dev Version: " />
+				<label id="lbl_version" />
 			</hbox>
 		</vbox>
 	</box>
