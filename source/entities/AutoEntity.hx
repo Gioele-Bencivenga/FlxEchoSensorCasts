@@ -1,5 +1,6 @@
 package entities;
 
+import hxmath.math.MathUtil;
 import flixel.FlxSprite;
 import lime.math.Vector2;
 import supplies.Supply;
@@ -24,27 +25,38 @@ class AutoEntity extends Entity {
 		super.update(elapsed);
 
 		if (target != null) {
-			seekTarget();
+			fleeTarget();
 		}
-	}
-
-	function seekTarget() {
-		desiredDirection = target.get_body().get_position() - this.get_body().get_position();
-		desiredDirection.normalizeTo(maxSpeed);
 	}
 
 	public function assignTarget(_target:Supply) {
 		target = _target;
 	}
 
-	// backup method not used at the moment, please ignore
-	function seek(_target:Supply) {
-		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
-		desiredDirection.normalizeTo(maxSpeed);
+	/**
+	 * Points the `desiredDirection` vector towards the `target` with a length of `maxSpeed`. The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
+	 * @param _diffTarget if you want you can specify a different target from `target` to follow
+	 */
+	function seekTarget(?_diffTarget:Supply) {
+		var targetToSeek = target;
+		if (_diffTarget != null)
+			targetToSeek = _diffTarget;
 
-		// belonging in `Entity.handleMovement()`
-		direction = desiredDirection - this.get_body().velocity;
-		direction.clamp(0, maxSteerSpeed);
-		this.get_body().push(direction.x, direction.y);
+		desiredDirection = targetToSeek.get_body().get_position() - this.get_body().get_position();
+		desiredDirection.normalizeTo(maxSpeed);
+	}
+
+	/**
+	 * Description
+	 * @param _diffTarget if you want you can specify a different target from `target` to flee
+	 */
+	function fleeTarget(?_diffTarget:Supply) {
+		var targetToFlee = target;
+		if (_diffTarget != null)
+			targetToFlee = _diffTarget;
+
+		desiredDirection = targetToFlee.get_body().get_position() - this.get_body().get_position();
+		desiredDirection.normalizeTo(maxSpeed);
+		desiredDirection.multiplyWith(-1);
 	}
 }
