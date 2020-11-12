@@ -41,7 +41,7 @@ class Generator {
 		if (_levelHeight != null)
 			levelHeight = _levelHeight;
 
-		// fill the matrix with 1s according to the width and height
+		// fill the matrix with 0s according to the width and height
 		var levelData:Array<Array<Int>> = [for (x in 0...levelWidth) [for (y in 0...levelHeight) 0]];
 
 		// apply random chance to turn to 1 to each tile
