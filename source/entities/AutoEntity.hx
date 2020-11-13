@@ -1,5 +1,6 @@
 package entities;
 
+import utilities.JoFuncs;
 import brains.Perceptron;
 import hxmath.math.MathUtil;
 import flixel.FlxSprite;
@@ -31,7 +32,7 @@ class AutoEntity extends Entity {
 		super.update(elapsed);
 
 		if (target != null) {
-			seekTarget();
+			seekTarget(300);
 		}
 	}
 
@@ -49,15 +50,17 @@ class AutoEntity extends Entity {
 		if (_diffTarget != null)
 			targetToSeek = _diffTarget;
 
+		// subtracting the target position vector from the entity's position vector gives us a vector pointing from us to the target
 		desiredDirection = targetToSeek.get_body().get_position() - this.get_body().get_position();
 
-		var distance = desiredDirection.length;
+		var distance = desiredDirection.length; // we use the vector's length to measure the distance
+		// if _arriveDistance was set higher than 0 and the measured distance is less than it
 		if (distance < _arriveDistance) {
-			// need to find equivalent in haxe/flixel
-			// float m = map(d,0,100,0,maxspeed); https://stackoverflow.com/a/17135426
-			// desiredDirection.normalizeTo(m);
+			// we create a new speed variable that diminishes in value with how close we are
+			var slowerSpeed = JoFuncs.map(distance, 0, _arriveDistance, 0, maxSpeed);
+			desiredDirection.normalizeTo(slowerSpeed); // and proceed at the lower speed
 		} else {
-			desiredDirection.normalizeTo(maxSpeed);
+			desiredDirection.normalizeTo(maxSpeed); // otherwise we proceed at maxSpeed
 		}
 	}
 

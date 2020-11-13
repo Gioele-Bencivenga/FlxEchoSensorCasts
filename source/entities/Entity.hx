@@ -44,9 +44,9 @@ class Entity extends FlxSprite {
 	var maxSpeed:Float;
 
 	/**
-	 * Maximum speed at which the `Entity` is able to steer it course.
+	 * Maximum speed at which the `Entity` is able to react to vector changes.
 	 */
-	var maxSteerSpeed:Float;
+	var maxReactionSpeed:Float;
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y);
@@ -54,7 +54,7 @@ class Entity extends FlxSprite {
 
 		canMove = true;
 		maxSpeed = 350;
-		maxSteerSpeed = 500;
+		maxReactionSpeed = 5000;
 
 		desiredDirection = new Vector2(0, 0);
 		direction = new Vector2(0, 0);
@@ -62,7 +62,7 @@ class Entity extends FlxSprite {
 		this.add_body({
 			mass: 1,
 			drag_length: 500,
-			rotational_drag: 150,
+			rotational_drag: 100,
 			max_velocity_length: Entity.MAX_VELOCITY,
 			max_rotational_velocity: Entity.MAX_ROTATIONAL_VELOCITY,
 		});
@@ -77,10 +77,10 @@ class Entity extends FlxSprite {
 
 	function handleMovement() {
 		direction = desiredDirection - this.get_body().velocity;
-		direction.clamp(0, maxSteerSpeed);
+		direction.clamp(0, maxReactionSpeed);
 
 		this.get_body().push(direction.x, direction.y);
-			this.get_body().rotation = MathUtil.radToDeg(this.get_body().velocity.angle); // we have to convert radians to degrees
+		this.get_body().rotation = MathUtil.radToDeg(this.get_body().velocity.angle); // we have to convert radians to degrees
 	}
 
 	/**
