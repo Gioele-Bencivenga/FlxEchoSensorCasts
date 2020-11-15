@@ -32,7 +32,7 @@ class AutoEntity extends Entity {
 		super.update(elapsed);
 
 		if (target != null) {
-			seekTarget(300);
+			fleeTarget(300);
 		}
 	}
 
@@ -41,40 +41,54 @@ class AutoEntity extends Entity {
 	}
 
 	/**
-	 * Points the `desiredDirection` vector towards the `target` with a length of `maxSpeed`. The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
-	 * @param _diffTarget if you want you can specify a different target from `target` to follow
-	 * @param _arriveDistance 0 by default, set it to the distance after which the entity must start slowing down
+	 * Points the `desiredDirection` vector towards the `target` with a length of `maxSpeed` or less. The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
+	 * @param _target if you want you can specify a different target from `target` to follow, otherwise this will get set = to `target` if left as `null`
+	 * @param _arriveDistance 0 by default, set it to the distance after which the entity must start slowing down (higher = further)
 	 */
-	function seekTarget(?_diffTarget:Supply, _arriveDistance = 0) {
-		var targetToSeek = target;
-		if (_diffTarget != null)
-			targetToSeek = _diffTarget;
+	function seekTarget(_target:Supply = null, _arriveDistance = 0) {
+		// if no _target has been provided we use the default target
+		if (_target == null)
+			_target = target;
 
 		// subtracting the target position vector from the entity's position vector gives us a vector pointing from us to the target
-		desiredDirection = targetToSeek.get_body().get_position() - this.get_body().get_position();
+		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
 
 		var distance = desiredDirection.length; // we use the vector's length to measure the distance
 		// if _arriveDistance was set higher than 0 and the measured distance is less than it
 		if (distance < _arriveDistance) {
 			// we create a new speed variable that diminishes in value with how close we are
-			var slowerSpeed = JoFuncs.map(distance, 0, _arriveDistance, 0, maxSpeed);
-			desiredDirection.normalizeTo(slowerSpeed); // and proceed at the lower speed
+			var newSpeed = JoFuncs.map(distance, 0, _arriveDistance, 0, maxSpeed);
+			desiredDirection.normalizeTo(newSpeed); // and proceed at the lower speed
 		} else {
 			desiredDirection.normalizeTo(maxSpeed); // otherwise we proceed at maxSpeed
 		}
 	}
 
 	/**
-	 * Points the `desiredDirection` vector opposite to the `target` with a length of `maxSpeed`. This is exactly the opposite of `seekTarget()`.
-	 * @param _diffTarget if you want you can specify a different target from `target` to flee from
+	 * Points the `desiredDirection` vector opposite to the `target` with a length of `maxSpeed` or less. The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
+	 *
+	 * This is exactly the opposite of `seekTarget()`.
+	 * @param _target if you want you can specify a different target from `target` to flee from, otherwise this will get set = to `target` if left as `null`
+	 * @param _departDistance 0 by default, set it to the distance after which the entity must start fleeing the target (higher = further) 
 	 */
-	function fleeTarget(?_diffTarget:Supply) {
-		var targetToFlee = target;
-		if (_diffTarget != null)
-			targetToFlee = _diffTarget;
+	function fleeTarget(_target:Supply = null, _departDistance = 0) {
+		// if no _target has been provided we use the default target
+		if (_target == null)
+			_target = target;
 
-		desiredDirection = targetToFlee.get_body().get_position() - this.get_body().get_position();
-		desiredDirection.normalizeTo(maxSpeed);
+		// subtracting the target position vector from the entity's position vector gives us a vector pointing from us to the target
+		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
+		// we invert the vector so it points opposite
 		desiredDirection.multiplyWith(-1);
+
+		var distance = desiredDirection.length; // we use the vector's length to measure the distance
+		// if _departDistance was set higher than 0 and the measured distance is less than it
+		if (distance < _departDistance) {
+			// we create a new speed variable that increases in value with how close we are
+			var newSpeed = JoFuncs.map(distance, 0, _departDistance, maxSpeed, 0);
+			desiredDirection.normalizeTo(newSpeed); // and proceed at the lower speed
+		} else {
+			desiredDirection.normalizeTo(0); // otherwise we stay put
+		}
 	}
 }
