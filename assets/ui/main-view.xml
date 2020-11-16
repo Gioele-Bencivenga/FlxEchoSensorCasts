@@ -1,0 +1,60 @@
+<vbox width="100%" height="100%">
+	<style>
+		.menubar-button, .menu .label {
+			font-size: 16px;
+		}
+
+		.menuitem:hover, .menuitem:selected {
+			background-color: #696969;
+		}
+
+		#box_version {
+			padding: 8px;
+		}
+
+		#lbl_version, #lbl_versionH {
+			font-size: 14; 
+			color: white;
+			filter: outline(#696969, 2);
+		}
+
+		.button{
+			font-size: 14px;
+		}
+	</style>
+
+	<menubar width="100%">
+		<menu text="World">
+			<menu text="Generate New">
+				<menuitem id="btn_gen_cave" text="Cave" />
+				<menuitem id="btn_gen_island" text="Island" />
+				<menuitem id="btn_gen_random" text="Random" />
+			</menu>
+			<menuitem id="btn_clear_world" text="Clear" />
+			<menuseparator />
+			<menuitem id="btn_place_player" text="Place Player" />
+		</menu>
+		<menu text="Edit">
+			<menuitem text="Item 1" />
+		</menu>
+		<menu text="About">
+			<menuitem id="link_website" text="My Website" icon="assets/icons/icon_website.png" />
+			<menuitem id="link_github" text="Code on GitHub" icon="assets/icons/icon_github.png" />
+		</menu>
+	</menubar>
+
+	<hbox>
+		<button id="btn_zoom_-" text="-" />
+		<button id="btn_zoom" text="Zoom: 0" />
+		<button id="btn_zoom_+" text="+" />
+	</hbox>
+
+	<box width="100%" height="100%">
+		<vbox verticalAlign="bottom" horizontalAlign="right">
+			<hbox id="box_version">
+				<label id="lbl_versionH" text="Dev Version: " />
+				<label id="lbl_version" />
+			</hbox>
+		</vbox>
+	</box>
+</vbox>
