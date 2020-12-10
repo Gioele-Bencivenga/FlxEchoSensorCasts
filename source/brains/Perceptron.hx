@@ -1,5 +1,6 @@
 package brains;
 
+import hxmath.math.Vector2;
 import flixel.FlxG;
 import flixel.math.FlxRandom;
 
@@ -18,11 +19,16 @@ class Perceptron {
 	 */
 	public var learningRate(default, null):Float;
 
-	public function new(_numOfWeights:Int) {
+	/**
+	 * Creates a new `Perceptron` instance with the specified weights initialized to random values between -1 and 1 inclusive.
+	 * @param _numOfWeights the number of weights that the `Perceptron` should have
+	 * @param learningRate 0.001 by default, it's the `Perceptron`'s learning rate
+	 */
+	public function new(_numOfWeights:Int, _learningRate = 0.001) {
 		// each weight is given a random value between -1 and 1
 		weights = [for (i in 0..._numOfWeights) FlxG.random.float(-1, 1)];
 
-		learningRate = 0.01;
+		learningRate = _learningRate;
 	}
 
 	/**
@@ -52,16 +58,11 @@ class Perceptron {
 			return -1;
 	}
 
-	function train(_inputs:Array<Float>, _desired:Int) {
-		// Guess according to those inputs.
-		var guess:Int = feedForward(_inputs);
-
-		// Compute the error (difference between answer and guess).
-		var error:Int = _desired - guess;
-
-		// Adjust all the weights according to the error and learning constant.
+	public function train(_inputs:Array<Vector2>, _error:Vector2) {
+		// Adjust all the weights according to the error and learning rate
 		for (i in 0...weights.length) {
-			weights[i] += learningRate * error * _inputs[i];
+			weights[i] += learningRate * _error.x * _inputs[i].x;
+			weights[i] += learningRate * _error.y * _inputs[i].y;
 		}
 	}
 }

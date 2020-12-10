@@ -43,10 +43,16 @@
 		</menu>
 	</menubar>
 
-	<hbox>
-		<button id="btn_zoom_-" text="-" />
-		<button id="btn_zoom" text="Zoom: 0" />
-		<button id="btn_zoom_+" text="+" />
+	<hbox width="100%">
+		<hbox width="100%">
+			<button id="btn_zoom_-" text="-" />
+			<button id="btn_zoom" text="Zoom: 0" />
+			<button id="btn_zoom_+" text="+" />
+		</hbox>
+		<box width="100%">
+			<button id="btn_play_pause" text="pause" toggle="true" selected="false" horizontalAlign="center" icon="assets/icons/icon_pause.png" />
+		</box>
+		<box width="100%"></box>
 	</hbox>
 
 	<box width="100%" height="100%">

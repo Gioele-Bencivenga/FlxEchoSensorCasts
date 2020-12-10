@@ -87,6 +87,7 @@ class PlayState extends FlxState {
 		uiView.findComponent("btn_clear_world", MenuItem).onClick = btn_clearWorld_onClick;
 		uiView.findComponent("link_website", MenuItem).onClick = link_website_onClick;
 		uiView.findComponent("link_github", MenuItem).onClick = link_github_onClick;
+		uiView.findComponent("btn_play_pause", Button).onClick = btn_play_pause_onClick;
 		uiView.findComponent("btn_zoom", Button).onClick = btn_zoom_onClick;
 		uiView.findComponent("btn_zoom_+", Button).onClick = btn_zoomPlus_onClick;
 		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
@@ -143,13 +144,18 @@ class PlayState extends FlxState {
 		FlxG.openURL("https://github.com/Gioele-Bencivenga/TilemapGen", "_blank");
 	}
 
-	function btn_playPause_onClick(_) {
-		var item = uiView.findComponent("btn_play_pause" /*, Type*/);
+	function btn_play_pause_onClick(_) {
+		var item = uiView.findComponent("btn_play_pause", Button);
 
-		if (FlxEcho.updates)
+		if (item.selected == true) {
 			FlxEcho.updates = false;
-		else
+			item.text = "play";
+			item.icon = "assets/icons/icon_play.png";
+		} else {
 			FlxEcho.updates = true;
+			item.text = "pause";
+			item.icon = "assets/icons/icon_pause.png";
+		}
 	}
 
 	function btn_zoom_onClick(_) {

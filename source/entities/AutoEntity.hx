@@ -15,7 +15,8 @@ using utilities.FlxEcho;
  */
 class AutoEntity extends Entity {
 	/**
-	 * The entity's "brain", represented by a Perceptron class.
+	 * The entity's "brain", represented by a `Perceptron` class.
+	 * Must be created with `createBrain()`.
 	 */
 	var brain(default, null):Perceptron;
 
@@ -32,13 +33,20 @@ class AutoEntity extends Entity {
 		super.update(elapsed);
 
 		if (target != null) {
-			fleeTarget(300);
+			seekTarget(300);
 		}
 	}
 
 	public function assignTarget(_target:Supply) {
 		target = _target;
 	}
+
+	//function brainSeek(_targets:Array<Supply>) {
+	//	var forces = 
+	//	var error = desiredDirection - this.get_body().get_position();
+	//	// the brain can be trained on an array of positions but we have only one target
+	//	brain.train([_target.get_body().get_position()], error);
+	//}
 
 	/**
 	 * Points the `desiredDirection` vector towards the `target` with a length of `maxSpeed` or less. The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
@@ -62,6 +70,8 @@ class AutoEntity extends Entity {
 		} else {
 			desiredDirection.normalizeTo(maxSpeed); // otherwise we proceed at maxSpeed
 		}
+
+		return desiredDirection;
 	}
 
 	/**
@@ -69,9 +79,9 @@ class AutoEntity extends Entity {
 	 *
 	 * This is exactly the opposite of `seekTarget()`.
 	 * @param _target if you want you can specify a different target from `target` to flee from, otherwise this will get set = to `target` if left as `null`
-	 * @param _departDistance 0 by default, set it to the distance after which the entity must start fleeing the target (higher = further) 
+	 * @param _departDistance 0 by default, set it to the distance after which the entity must start fleeing the target (higher = further)
 	 */
-	function fleeTarget(_target:Supply = null, _departDistance = 0) {
+	function fleeTarget(_target:Supply = null, _departDistance:Float = 0) {
 		// if no _target has been provided we use the default target
 		if (_target == null)
 			_target = target;
@@ -90,5 +100,14 @@ class AutoEntity extends Entity {
 		} else {
 			desiredDirection.normalizeTo(0); // otherwise we stay put
 		}
+	}
+
+	/**
+	 * Creates a brain for this entity by initializing its `Perceptron`.
+	 * @param _numOfWeights the number of weights that the `Perceptron` should have
+	 * @param _learningRate 0.001 by default, it's the `Perceptron`'s learning rate
+	 */
+	public function createBrain(_numOfWeights:Int, _learningRate:Float = 0.001) {
+		brain = new Perceptron(_numOfWeights, _learningRate);
 	}
 }
