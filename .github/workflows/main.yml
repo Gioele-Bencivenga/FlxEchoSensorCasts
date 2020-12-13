@@ -9,8 +9,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           persist-credentials: false
-      - name: Setup Haxe environment
-        uses: krdlab/setup-haxe@v1.1.4
+      - uses: lix-pm/setup-lix@master
       - uses: HaxeFlixel/setup-flixel@master
         with:
           haxe-version: stable
@@ -19,8 +18,8 @@ jobs:
       - name: Build
         run: |
           haxelib git echo https://github.com/AustinEast/echo.git
-          haxelib git haxeui-core https://github.com/haxeui/haxeui-core
-          haxelib git haxeui-flixel https://github.com/haxeui/haxeui-flixel
+          haxelib git haxeui-core https://github.com/haxeui/haxeui-core.git
+          haxelib git haxeui-flixel https://github.com/haxeui/haxeui-flixel.git
           haxelib run lime build html5 -final
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
