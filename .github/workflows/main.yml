@@ -17,6 +17,7 @@ jobs:
           target: html5
       - name: Build
         run: |
+          mkdir ~/haxelib && haxelib setup ~/haxelib
           haxelib git echo https://github.com/AustinEast/echo.git
           git clone https://github.com/haxeui/haxeui-core && haxelib dev haxeui-core haxeui-core
           haxelib git haxeui-flixel https://github.com/haxeui/haxeui-flixel
