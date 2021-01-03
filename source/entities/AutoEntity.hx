@@ -1,5 +1,6 @@
 package entities;
 
+import flixel.FlxG;
 import utilities.JoFuncs;
 import brains.Perceptron;
 import hxmath.math.MathUtil;
@@ -60,7 +61,7 @@ class AutoEntity extends Entity {
 
 		// subtracting the target position vector from the entity's position vector gives us a vector pointing from us to the target
 		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
-
+	
 		var distance = desiredDirection.length; // we use the vector's length to measure the distance
 		// if _arriveDistance was set higher than 0 and the measured distance is less than it
 		if (distance < _arriveDistance) {
