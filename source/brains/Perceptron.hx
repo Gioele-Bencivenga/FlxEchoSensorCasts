@@ -39,8 +39,10 @@ class Perceptron {
 	public function feedForward(_inputs:Array<Vector2>):Vector2 {
 		var sum = new Vector2(0, 0);
 
+		trace("Feeding");
+		
 		for (i in 0...weights.length-1) {
-
+			
 			_inputs[i].multiplyWith(weights[i]);
 			sum.addWith(_inputs[i]);
 		}

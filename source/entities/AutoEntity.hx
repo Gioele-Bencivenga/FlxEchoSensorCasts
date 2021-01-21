@@ -1,13 +1,10 @@
 package entities;
 
+import states.PlayState;
 import hxmath.math.Vector2;
-import flixel.FlxG;
 import utilities.JoFuncs;
 import brains.Perceptron;
-import hxmath.math.MathUtil;
-import flixel.FlxSprite;
 import supplies.Supply;
-import haxe.Resource;
 
 using utilities.FlxEcho;
 
@@ -34,10 +31,7 @@ class AutoEntity extends Entity {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (target != null) {
-			// seekTarget(300);
-			brainSeek();
-		}
+		brainSeek(PlayState.resources.members);
 	}
 
 	public function assignTarget(_target:Supply) {
@@ -45,7 +39,7 @@ class AutoEntity extends Entity {
 	}
 
 	function brainSeek(_targets:Array<Supply> = null) {
-		if(_targets == null)
+		if (_targets == null)
 			_targets = [target];
 
 		// initialise an array of forces (vectors) as long as the number of targets
@@ -60,7 +54,7 @@ class AutoEntity extends Entity {
 		desiredDirection = result;
 
 		// learn from our error (distance from target)
-		var error = target.get_body().get_position() - this.get_body().get_position();
+		var error = _targets[0].get_body().get_position() - this.get_body().get_position();
 		brain.train(forces, error);
 	}
 

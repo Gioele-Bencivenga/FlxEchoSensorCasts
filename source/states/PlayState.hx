@@ -42,9 +42,17 @@ class PlayState extends FlxState {
 
 	var levelData:Array<Array<Int>>;
 
-	var terrain:FlxGroup;
-	var entities:FlxGroup;
-	var bouncers:FlxGroup;
+	// commodity for references
+	public static var resources:FlxTypedGroup<Supply>;
+
+	/**
+	 * Collision group containing the terrain tiles.
+	 */
+	public static var terrainGroup:FlxGroup;
+	/**
+	 * Collision group containing the entities.
+	 */
+	public static var entitiesGroup:FlxGroup;
 
 	/**
 	 * Simulation camera, the camera displaying the simulation.
@@ -68,15 +76,13 @@ class PlayState extends FlxState {
 
 		setupCameras();
 
-		terrain = new FlxGroup();
-		add(terrain);
-		terrain.cameras = [simCam];
-		entities = new FlxGroup();
-		add(entities);
-		entities.cameras = [simCam];
-		bouncers = new FlxGroup();
-		add(bouncers);
-		bouncers.cameras = [simCam];
+		terrainGroup = new FlxGroup();
+		add(terrainGroup);
+		terrainGroup.cameras = [simCam];
+		entitiesGroup = new FlxGroup();
+		add(entitiesGroup);
+		entitiesGroup.cameras = [simCam];
+		resources = new FlxTypedGroup<Supply>();
 
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
 		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
@@ -133,7 +139,6 @@ class PlayState extends FlxState {
 
 	function btn_placePlayer_onClick(_) {
 		var item = uiView.findComponent("btn_place_player", MenuItem); // need to specify component type if you want field completion after
-		placePlayer();
 	}
 
 	function link_website_onClick(_) {
@@ -200,9 +205,9 @@ class PlayState extends FlxState {
 
 	function generateCaveTilemap() {
 		// reset the groups to fill them again
-		emptyGroups([terrain, bouncers]);
+		emptyGroups([entitiesGroup, terrainGroup]);
 
-		gen = new Generator(100, 100); // we instantiate a generator that will generate a matrix of cells
+		gen = new Generator(30, 30); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
 
 		// First thing we want to do before creating any physics objects is init() our Echo world.
@@ -221,40 +226,31 @@ class PlayState extends FlxState {
 			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
 			wallTile.set_body(tile); // Attach the Generated physics body to the Box sprite
 			wallTile.get_body().mass = 0; // tiles are immovable
-			wallTile.add_to_group(terrain); // Instead of `group.add(object)` we use `object.add_to_group(group)`
+			wallTile.add_to_group(terrainGroup); // Instead of `group.add(object)` we use `object.add_to_group(group)`
 		}
 
 		// We'll step through our level data and add objects that way
 		for (j in 0...levelData.length) {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
-					case 2:
-						// Orange boxes will act like springs!
-						var orangebox = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xFFFF8000);
-						// We'll set the origin and offset here so that we can animate our orange block later
-						orangebox.origin.y = TILE_SIZE;
-						orangebox.offset.y = -TILE_SIZE / 2;
-						orangebox.add_body({mass: 0}); // Create a new physics body for the Box sprite. We'll pass in body options with mass set to 0 so that it's static
-						orangebox.add_to_group(bouncers);
 					case 3:
 						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2), Std.int(TILE_SIZE / 3), FlxColor.MAGENTA);
-						auto.add_to_group(entities);
+						auto.add_to_group(entitiesGroup);
 					default:
 						continue;
 				}
 			}
 		}
 
-		auto.listen(terrain);
+		auto.listen(terrainGroup);
 		simCam.follow(auto, 0.2);
 
-		var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 10, FlxColor.CYAN);
-		res.add_to_group(entities);
-
-		auto.assignTarget(res);
+		for(i in 0...5){
+			var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 10, FlxColor.CYAN);
+			res.add_to_group(entitiesGroup); // add to collision group
+			resources.add(res); // add to player reference group
+		}
 	}
-
-	function placePlayer() {}
 
 	/**
 	 * This function `kill()`s, `clear()`s and `revive()`s the passed groups.
