@@ -1,11 +1,11 @@
 package entities;
 
+import hxmath.math.Vector2;
 import flixel.FlxG;
 import utilities.JoFuncs;
 import brains.Perceptron;
 import hxmath.math.MathUtil;
 import flixel.FlxSprite;
-import lime.math.Vector2;
 import supplies.Supply;
 import haxe.Resource;
 
@@ -17,7 +17,6 @@ using utilities.FlxEcho;
 class AutoEntity extends Entity {
 	/**
 	 * The entity's "brain", represented by a `Perceptron` class.
-	 * Must be created with `createBrain()`.
 	 */
 	var brain(default, null):Perceptron;
 
@@ -28,13 +27,16 @@ class AutoEntity extends Entity {
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
+
+		brain = new Perceptron(2);
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
 		if (target != null) {
-			seekTarget(300);
+			// seekTarget(300);
+			brainSeek();
 		}
 	}
 
@@ -42,12 +44,25 @@ class AutoEntity extends Entity {
 		target = _target;
 	}
 
-	//function brainSeek(_targets:Array<Supply>) {
-	//	var forces = 
-	//	var error = desiredDirection - this.get_body().get_position();
-	//	// the brain can be trained on an array of positions but we have only one target
-	//	brain.train([_target.get_body().get_position()], error);
-	//}
+	function brainSeek(_targets:Array<Supply> = null) {
+		if(_targets == null)
+			_targets = [target];
+
+		// initialise an array of forces (vectors) as long as the number of targets
+		var forces = [for (i in 0..._targets.length) new Vector2(0, 0)];
+
+		for (i in 0...forces.length) {
+			forces[i] = seekTarget(_targets[i]);
+		}
+
+		// calculate where we want to go
+		var result = brain.feedForward(forces);
+		desiredDirection = result;
+
+		// learn from our error (distance from target)
+		var error = target.get_body().get_position() - this.get_body().get_position();
+		brain.train(forces, error);
+	}
 
 	/**
 	 * Points the `desiredDirection` vector towards the `target` with a length of `maxSpeed` or less. The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
@@ -61,7 +76,7 @@ class AutoEntity extends Entity {
 
 		// subtracting the target position vector from the entity's position vector gives us a vector pointing from us to the target
 		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
-	
+
 		var distance = desiredDirection.length; // we use the vector's length to measure the distance
 		// if _arriveDistance was set higher than 0 and the measured distance is less than it
 		if (distance < _arriveDistance) {
@@ -101,14 +116,5 @@ class AutoEntity extends Entity {
 		} else {
 			desiredDirection.normalizeTo(0); // otherwise we stay put
 		}
-	}
-
-	/**
-	 * Creates a brain for this entity by initializing its `Perceptron`.
-	 * @param _numOfWeights the number of weights that the `Perceptron` should have
-	 * @param _learningRate 0.001 by default, it's the `Perceptron`'s learning rate
-	 */
-	public function createBrain(_numOfWeights:Int, _learningRate:Float = 0.001) {
-		brain = new Perceptron(_numOfWeights, _learningRate);
 	}
 }

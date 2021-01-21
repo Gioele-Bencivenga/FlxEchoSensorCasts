@@ -32,18 +32,20 @@ class Perceptron {
 	}
 
 	/**
-	 * This function enables the Perceptron to receive inputs and generate an output as an integer.
+	 * This function takes in an array of Vector2 and calculates something.
 	 * @param _inputs the array of input weights the Perceptron receives
-	 * @return 1 if the activation is positive, -1 if negative
+	 * @return the summed vector
 	 */
-	public function feedForward(_inputs:Array<Float>):Int {
-		var sum:Float = 0;
+	public function feedForward(_inputs:Array<Vector2>):Vector2 {
+		var sum = new Vector2(0, 0);
 
-		for (i in 0...weights.length) {
-			sum += _inputs[i] * weights[i];
+		for (i in 0...weights.length-1) {
+
+			_inputs[i].multiplyWith(weights[i]);
+			sum.addWith(_inputs[i]);
 		}
 
-		return activate(sum);
+		return sum;
 	}
 
 	/**
