@@ -42,13 +42,13 @@ class PlayState extends FlxState {
 
 	var levelData:Array<Array<Int>>;
 
-	// commodity for references
-	public static var resources:FlxTypedGroup<Supply>;
+	public static var resource:Supply;
 
 	/**
 	 * Collision group containing the terrain tiles.
 	 */
 	public static var terrainGroup:FlxGroup;
+
 	/**
 	 * Collision group containing the entities.
 	 */
@@ -82,7 +82,6 @@ class PlayState extends FlxState {
 		entitiesGroup = new FlxGroup();
 		add(entitiesGroup);
 		entitiesGroup.cameras = [simCam];
-		resources = new FlxTypedGroup<Supply>();
 
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
 		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
@@ -245,11 +244,8 @@ class PlayState extends FlxState {
 		auto.listen(terrainGroup);
 		simCam.follow(auto, 0.2);
 
-		for(i in 0...5){
-			var res = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 10, FlxColor.CYAN);
-			res.add_to_group(entitiesGroup); // add to collision group
-			resources.add(res); // add to player reference group
-		}
+		resource = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 10, FlxColor.CYAN);
+		resource.add_to_group(entitiesGroup); // add to collision group
 	}
 
 	/**

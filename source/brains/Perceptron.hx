@@ -1,5 +1,6 @@
 package brains;
 
+import utilities.JoFuncs;
 import hxmath.math.Vector2;
 import flixel.FlxG;
 import flixel.math.FlxRandom;
@@ -25,10 +26,10 @@ class Perceptron {
 	 * @param learningRate 0.001 by default, it's the `Perceptron`'s learning rate
 	 */
 	public function new(_numOfWeights:Int, _learningRate = 0.001) {
+		learningRate = _learningRate;
+		
 		// each weight is given a random value between -1 and 1
 		weights = [for (i in 0..._numOfWeights) FlxG.random.float(-1, 1)];
-
-		learningRate = _learningRate;
 	}
 
 	/**
@@ -36,37 +37,20 @@ class Perceptron {
 	 * @param _inputs the array of input weights the Perceptron receives
 	 * @return the summed vector
 	 */
-	public function feedForward(_inputs:Array<Vector2>):Vector2 {
+	public function feedForward(_input:Vector2):Vector2 {
 		var sum = new Vector2(0, 0);
-
-		trace("Feeding");
 		
-		for (i in 0...weights.length-1) {
-			
-			_inputs[i].multiplyWith(weights[i]);
-			sum.addWith(_inputs[i]);
+		for (i in 0...weights.length) {
+			_input.multiplyWith(weights[i]);
+			sum.addWith(_input);
 		}
-
 		return sum;
 	}
 
-	/**
-	 * The activation function.
-	 * @param sum the value we want to check the function on
-	 * @return 1 if positive, -1 if negative
-	 */
-	function activate(sum:Float):Int {
-		if (sum > 0)
-			return 1;
-		else
-			return -1;
-	}
-
-	public function train(_inputs:Array<Vector2>, _error:Vector2) {
+	public function train(_input:Vector2, _error:Vector2) {
 		// Adjust all the weights according to the error and learning rate
-		for (i in 0...weights.length) {
-			weights[i] += learningRate * _error.x * _inputs[i].x;
-			weights[i] += learningRate * _error.y * _inputs[i].y;
-		}
+			weights[0] += learningRate * _error.x * _input.x;
+			weights[0] += learningRate * _error.y * _input.y;
+			weights[0] = JoFuncs.constrain(weights[0], 0, 1);
 	}
 }

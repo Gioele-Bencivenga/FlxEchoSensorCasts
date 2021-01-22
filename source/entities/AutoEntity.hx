@@ -25,37 +25,34 @@ class AutoEntity extends Entity {
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
 
-		brain = new Perceptron(2);
+		brain = new Perceptron(1);
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		brainSeek(PlayState.resources.members);
+		brainSeek(PlayState.resource);
 	}
 
 	public function assignTarget(_target:Supply) {
 		target = _target;
 	}
 
-	function brainSeek(_targets:Array<Supply> = null) {
-		if (_targets == null)
-			_targets = [target];
+	function brainSeek(_target:Supply = null) {
+		if (_target == null)
+			_target = target;
 
-		// initialise an array of forces (vectors) as long as the number of targets
-		var forces = [for (i in 0..._targets.length) new Vector2(0, 0)];
+		var force = new Vector2(0, 0);
 
-		for (i in 0...forces.length) {
-			forces[i] = seekTarget(_targets[i]);
-		}
+		force = seekTarget(_target);
 
 		// calculate where we want to go
-		var result = brain.feedForward(forces);
+		var result = brain.feedForward(force);
 		desiredDirection = result;
 
 		// learn from our error (distance from target)
-		var error = _targets[0].get_body().get_position() - this.get_body().get_position();
-		brain.train(forces, error);
+		var error = _target.get_body().get_position() - this.get_body().get_position();
+		brain.train(force, error);
 	}
 
 	/**
