@@ -3,7 +3,6 @@ package entities;
 import states.PlayState;
 import hxmath.math.Vector2;
 import utilities.JoFuncs;
-import brains.Perceptron;
 import supplies.Supply;
 
 using utilities.FlxEcho;
@@ -13,46 +12,22 @@ using utilities.FlxEcho;
  */
 class AutoEntity extends Entity {
 	/**
-	 * The entity's "brain", represented by a `Perceptron` class.
-	 */
-	var brain(default, null):Perceptron;
-
-	/**
 	 * The current `Supply` an entity wants to reach. Can be set using `assignTarget()`.
 	 */
 	var target(default, null):Supply;
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
-
-		brain = new Perceptron(1);
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		brainSeek(PlayState.resource);
+		seekTarget(PlayState.resource, 100);
 	}
 
 	public function assignTarget(_target:Supply) {
 		target = _target;
-	}
-
-	function brainSeek(_target:Supply = null) {
-		if (_target == null)
-			_target = target;
-
-		var force = new Vector2(0, 0);
-
-		force = seekTarget(_target);
-
-		// calculate where we want to go
-		var result = brain.feedForward(force);
-		desiredDirection = result;
-
-		// learn from our error (distance from target)
-		var error = _target.get_body().get_position() - this.get_body().get_position();
-		brain.train(force, error);
 	}
 
 	/**

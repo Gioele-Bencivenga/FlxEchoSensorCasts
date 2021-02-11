@@ -13,7 +13,6 @@ import haxe.ui.Toolkit;
 import flixel.FlxCamera;
 import generators.Generator;
 import entities.Entity;
-import entities.Player;
 import tiles.Tile;
 import flixel.util.FlxColor;
 import flixel.FlxG;
@@ -102,29 +101,6 @@ class PlayState extends FlxState {
 		simCam.targetZoom = 1.2;
 		simCam.zoomMargin = 0.2;
 		simCam.bgColor.setRGB(25, 21, 0);
-
-		/* Other collisions
-			// Our second physics listener collides our player with the bouncers group.
-			player.listen(bouncers, {
-				// We'll add this listener option - every frame our player object is colliding with a bouncer in the bouncers group we'll run this function
-				stay: (a, b,
-					c) ->
-				{ // where a is our first physics body (`player`), b is the physics body it's colliding with (`orangebox`), and c is an array of collision data.
-						// for every instance of collision data
-							for (col in c) {
-								// This checks to see if the normal of our collision is pointing downward - you could use it for hop and bop games to see if a player has stomped on an enemy!
-								if (col.normal.dot(Vector2.yAxis).round() == 1) {
-									// set the player's velocity to go up!
-									a.velocity.y = -10000;
-									// animate the orange box!
-									var b_object:FlxSprite = cast b.get_object();
-									b_object.scale.y = 1.5;
-									FlxTween.tween(b_object.scale, { y: 1 }, 0.5, { ease: FlxEase.elasticOut });
-								}
-						}
-					}
-			});
-		 */
 	}
 
 	function btn_generateCave_onClick(_) {

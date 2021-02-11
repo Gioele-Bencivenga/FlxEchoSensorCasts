@@ -61,8 +61,8 @@ class Entity extends FlxSprite {
 
 		this.add_body({
 			mass: 1,
-			drag_length: 500,
-			rotational_drag: 100,
+			drag_length: 10,
+			rotational_drag: 5,
 			max_velocity_length: Entity.MAX_VELOCITY,
 			max_rotational_velocity: Entity.MAX_ROTATIONAL_VELOCITY,
 		});
