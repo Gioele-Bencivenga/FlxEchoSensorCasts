@@ -48,6 +48,8 @@
 
 	<!-- Echo Physics by Austin East -->
 	<haxelib name="echo-flixel" />
+	<!-- Adds an `object` field with `FlxObject` type to echo's `Body` class -->
+	<!--<haxeflag name="- -macro" value="echo.Macros.add_data('object','flixel.FlxObject')" /> is this still needed??-->
 
 	<!-- HaxeUI by IanArrigan-->
 	<haxelib name="haxeui-core" />

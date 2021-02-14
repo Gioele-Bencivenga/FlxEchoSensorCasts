@@ -209,7 +209,7 @@ class PlayState extends FlxState {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
 					case 3:
-						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2), Std.int(TILE_SIZE / 3), FlxColor.MAGENTA);
+						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2), Std.int(TILE_SIZE / 3), FlxColor.YELLOW);
 						auto.add_to_group(entitiesGroup);
 					default:
 						continue;
