@@ -182,7 +182,7 @@ class PlayState extends FlxState {
 		// reset the groups to fill them again
 		emptyGroups([entitiesGroup, terrainGroup]);
 
-		gen = new Generator(30, 30); // we instantiate a generator that will generate a matrix of cells
+		gen = new Generator(60, 60); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
 
 		// First thing we want to do before creating any physics objects is init() our Echo world.
