@@ -1,5 +1,6 @@
 package states;
 
+import haxe.ui.themes.Theme;
 import utilities.JoFuncs;
 import entities.AutoEntity;
 import supplies.Supply;
@@ -72,6 +73,7 @@ class PlayState extends FlxState {
 		/// UI STUFF
 		Toolkit.init();
 		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
+		Toolkit.theme = Theme.DARK;
 
 		setupCameras();
 
@@ -130,11 +132,11 @@ class PlayState extends FlxState {
 		if (item.selected == true) {
 			FlxEcho.updates = false;
 			item.text = "play";
-			item.icon = "assets/icons/icon_play.png";
+			item.icon = "assets/icons/icon_play_light.png";
 		} else {
 			FlxEcho.updates = true;
 			item.text = "pause";
-			item.icon = "assets/icons/icon_pause.png";
+			item.icon = "assets/icons/icon_pause_light.png";
 		}
 	}
 
@@ -182,7 +184,7 @@ class PlayState extends FlxState {
 		// reset the groups to fill them again
 		emptyGroups([entitiesGroup, terrainGroup]);
 
-		gen = new Generator(60, 60); // we instantiate a generator that will generate a matrix of cells
+		gen = new Generator(50, 80); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
 
 		// First thing we want to do before creating any physics objects is init() our Echo world.
@@ -209,7 +211,7 @@ class PlayState extends FlxState {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
 					case 3:
-						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE / 2), Std.int(TILE_SIZE / 3), FlxColor.YELLOW);
+						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						auto.add_to_group(entitiesGroup);
 					default:
 						continue;
