@@ -16,6 +16,9 @@ class Tile extends FlxSprite {
 	 */
 	override function kill() {
 		super.kill();
-		this.get_body().remove_body();
+
+		if (this.get_body() != null) {
+			this.get_body().remove_body();
+		}
 	}
 }

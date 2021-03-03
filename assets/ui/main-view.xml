@@ -31,8 +31,8 @@
 			<menuitem id="btn_place_player" text="Place Entity" tooltip="Places a new entity in the world" />
 		</menu>
 		<menu text="About">
-			<menuitem id="link_website" text="My Website" icon="assets/icons/icon_website_light.png" />
-			<menuitem id="link_github" text="Code on GitHub" icon="assets/icons/icon_github_light.png" />
+			<menuitem id="link_website" text="My Website" icon="assets/icons/icon_website.png" />
+			<menuitem id="link_github" text="Code on GitHub" icon="assets/icons/icon_github.png" />
 		</menu>
 	</menubar>
 
