@@ -201,7 +201,8 @@ class PlayState extends FlxState {
 			var bounds = tile.bounds(); // Get the bounds of the generated physics body to create a Box sprite from it
 			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.fromRGB(230, 240, 245));
 			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
-			wallTile.set_body(tile); // Attach the Generated physics body to the Box sprite
+			//wallTile.set_body(tile); // Attach the Generated physics body to the Box sprite
+			wallTile.add_body();
 			wallTile.get_body().mass = 0; // tiles are immovable
 			wallTile.add_to_group(terrainGroup); // Instead of `group.add(object)` we use `object.add_to_group(group)`
 		}
@@ -219,7 +220,18 @@ class PlayState extends FlxState {
 			}
 		}
 
-		auto.listen(terrainGroup);
+		/*
+			auto = new AutoEntity(0, 0, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
+			auto.add_to_group(entitiesGroup);
+
+			var wallTile = new Tile(5, 5, Std.int(TILE_SIZE * 1.5), Std.int(TILE_SIZE * 1.5), FlxColor.fromRGB(230, 240, 245));
+			wallTile.add_body();
+			wallTile.get_body().mass = 0; // tiles are immovable
+			wallTile.add_to_group(terrainGroup);
+		 */
+
+		entitiesGroup.listen(terrainGroup);
+
 		simCam.follow(auto, 0.2);
 
 		resource = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 10, FlxColor.CYAN);
