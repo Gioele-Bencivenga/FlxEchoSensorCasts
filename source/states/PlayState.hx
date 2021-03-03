@@ -1,7 +1,7 @@
 package states;
 
 import haxe.ui.themes.Theme;
-import utilities.JoFuncs;
+import utilities.HxFuncs;
 import entities.AutoEntity;
 import supplies.Supply;
 import flixel.math.FlxMath;
@@ -173,7 +173,7 @@ class PlayState extends FlxState {
 		super.update(elapsed);
 
 		var zoomBtn = uiView.findComponent("btn_zoom", Button);
-		zoomBtn.text = 'Zoom: ${Std.string(Std.int(JoFuncs.map(simCam.targetZoom, 0, 2, 0, 100)))}';
+		zoomBtn.text = 'Zoom: ${Std.string(Std.int(HxFuncs.map(simCam.targetZoom, 0, 2, 0, 100)))}';
 
 		if (FlxG.mouse.wheel != 0) {
 			simCam.targetZoom += FlxMath.bound(FlxG.mouse.wheel, -0.04, 0.04);

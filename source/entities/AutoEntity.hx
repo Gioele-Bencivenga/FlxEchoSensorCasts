@@ -1,8 +1,7 @@
 package entities;
 
 import states.PlayState;
-import hxmath.math.Vector2;
-import utilities.JoFuncs;
+import utilities.HxFuncs;
 import supplies.Supply;
 
 using echo.FlxEcho;
@@ -47,7 +46,7 @@ class AutoEntity extends Entity {
 		// if _arriveDistance was set higher than 0 and the measured distance is less than it
 		if (distance < _arriveDistance) {
 			// we create a new speed variable that diminishes in value with how close we are
-			var newSpeed = JoFuncs.map(distance, 0, _arriveDistance, 0, maxSpeed);
+			var newSpeed = HxFuncs.map(distance, 0, _arriveDistance, 0, maxSpeed);
 			desiredDirection.normalizeTo(newSpeed); // and proceed at the lower speed
 		} else {
 			desiredDirection.normalizeTo(maxSpeed); // otherwise we proceed at maxSpeed
@@ -77,7 +76,7 @@ class AutoEntity extends Entity {
 		// if _departDistance was set higher than 0 and the measured distance is less than it
 		if (distance < _departDistance) {
 			// we create a new speed variable that increases in value with how close we are
-			var newSpeed = JoFuncs.map(distance, 0, _departDistance, maxSpeed, 0);
+			var newSpeed = HxFuncs.map(distance, 0, _departDistance, maxSpeed, 0);
 			desiredDirection.normalizeTo(newSpeed); // and proceed at the lower speed
 		} else {
 			desiredDirection.normalizeTo(0); // otherwise we stay put

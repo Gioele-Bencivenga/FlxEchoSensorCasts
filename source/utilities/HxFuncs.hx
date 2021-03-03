@@ -1,9 +1,11 @@
 package utilities;
 
 /**
- * A bunch of helper functions that I felt like keeping, take what you want.
+ * A bunch of helper functions for Haxe that I felt like keeping.
+ * 
+ * If you notice any mistakes or things that you could do better please tell me and I'll try addressing!
  */
-class JoFuncs {
+class HxFuncs {
 	/**
 	 * Re-maps a value from one range to another.
 	 *
@@ -19,7 +21,7 @@ class JoFuncs {
 	 * @param _targetUpp the upper bound of `_value`'s target range
 	 * @return the value that `_value` would have if it was in the target range (`_targetLow`, `_targetUpp`) instead of the current range (`_currLow`, `_currUpp`)
 	 */
-	public static inline function map(_value:Float, _currLow:Float, _currUpp:Float, _targetLow:Float, _targetUpp:Float) {
+	public static inline function map(_value:Float, _currLow:Float, _currUpp:Float, _targetLow:Float, _targetUpp:Float):Float {
 		return _targetLow + (_targetUpp - _targetLow) * ((_value - _currLow) / (_currUpp - _currLow));
 	}
 
@@ -36,7 +38,19 @@ class JoFuncs {
 	 * @param _max the maximum amount `_value` can be
 	 * @return the value as constrained within the min and max
 	 */
-	public static inline function constrain(_value:Float, _min:Float, _max:Float) {
+	public static inline function constrain(_value:Float, _min:Float, _max:Float):Float {
 		return (_value < _min) ? _min : ((_value > _max) ? _max : _value);
+	}
+
+	/**
+	 * Computes the hyperbolic tangent function of the `_value` argument
+	 * 
+	 * Courtesy of SunDaw#8306 on the Haxe Discord.
+	 * @param _value the value you want to calculate the hyperbolic tanget of
+	 * @return the computed value
+	 */
+	public static inline function tanh(_value:Float):Float {
+		var exponent = 2 * _value;
+		return (Math.exp(exponent) - 1.0) / (Math.exp(exponent) + 1.0);
 	}
 }

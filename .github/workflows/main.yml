@@ -19,7 +19,6 @@ jobs:
         run: |
           haxelib git echo https://github.com/AustinEast/echo.git
           haxelib git echo-flixel https://github.com/AustinEast/echo-flixel.git
-          haxelib git hscript https://github.com/HaxeFoundation/hscript.git
           haxelib git haxeui-core https://github.com/haxeui/haxeui-core.git
           haxelib git haxeui-flixel https://github.com/haxeui/haxeui-flixel.git
           haxelib run lime build html5 -final
