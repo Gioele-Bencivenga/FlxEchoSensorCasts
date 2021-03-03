@@ -5,7 +5,7 @@ import hxmath.math.Vector2;
 import utilities.JoFuncs;
 import supplies.Supply;
 
-using utilities.FlxEcho;
+using echo.FlxEcho;
 
 /**
  * Autonomous Entity class representing an entity able to act autonomously by acquiring targets and moving towards them.

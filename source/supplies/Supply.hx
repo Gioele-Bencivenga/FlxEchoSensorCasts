@@ -5,7 +5,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.FlxSprite;
 
-using utilities.FlxEcho;
+using echo.FlxEcho;
 
 /**
  * A Supply class that can be depleted via the `hurt()` function and that modifies its dimensions according to its quantity (represented by the `health` variable).

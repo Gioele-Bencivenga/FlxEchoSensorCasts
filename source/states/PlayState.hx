@@ -27,7 +27,7 @@ import flixel.tweens.FlxTween;
 import echo.util.TileMap;
 
 using Math;
-using utilities.FlxEcho;
+using echo.FlxEcho;
 using hxmath.math.Vector2;
 using flixel.util.FlxArrayUtil;
 using flixel.util.FlxSpriteUtil;
@@ -201,8 +201,8 @@ class PlayState extends FlxState {
 			var bounds = tile.bounds(); // Get the bounds of the generated physics body to create a Box sprite from it
 			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.fromRGB(230, 240, 245));
 			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
-			//wallTile.set_body(tile); // Attach the Generated physics body to the Box sprite
-			wallTile.add_body();
+			wallTile.set_body(tile); // attach the generated body to the FlxObject
+			//wallTile.add_body();
 			wallTile.get_body().mass = 0; // tiles are immovable
 			wallTile.add_to_group(terrainGroup); // Instead of `group.add(object)` we use `object.add_to_group(group)`
 		}

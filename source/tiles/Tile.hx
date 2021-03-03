@@ -2,7 +2,7 @@ package tiles;
 
 import flixel.FlxSprite;
 
-using utilities.FlxEcho;
+using echo.FlxEcho;
 
 class Tile extends FlxSprite {
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {

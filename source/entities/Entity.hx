@@ -5,7 +5,7 @@ import flixel.math.FlxVector;
 import hxmath.math.Vector2;
 import flixel.FlxSprite;
 
-using utilities.FlxEcho;
+using echo.FlxEcho;
 
 class Entity extends FlxSprite {
 	/**
