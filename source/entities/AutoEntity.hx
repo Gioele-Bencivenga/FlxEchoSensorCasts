@@ -32,10 +32,26 @@ class AutoEntity extends Entity {
 	 */
 	var sensChecker:FlxTimer;
 
+	/**
+	 * The line that is drawn to visualize sensor position.
+	 */
 	public var sensorLine(default, null):DebugLine;
+
+	/**
+	 * The number of environment sensors that this entity will have.
+	 */
+	var sensorCount:Int;
+
+	/**
+	 * The array containing the entity's environment sensors.
+	 */
+	var sensors:Array<Line>;
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
+
+		sensorCount = 5;
+		sensors = [for (i in 0...sensorCount) null]; // fill the sensors array with nulls
 
 		sensTick = 0.5;
 		sensChecker = new FlxTimer();
@@ -112,25 +128,19 @@ class AutoEntity extends Entity {
 	 * Get information about the environment from the sensors.
 	 */
 	function sense() {
-		var castCount = 10; // linecast number TODO: move to class variable
-		var castLength = 20; // linecast length
+		var castLength = 40; // linecast length
 		// we need an array of bodies for the linecast
 		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
 
-		var ray = Line.get();
-
-		for (i in 0...castCount) {
+		for (i in 0...sensors.length) {
+			sensors[i] = Line.get();
 			if (this.get_body() != null) {
-				ray.set_from_vector(this.get_body().get_position(), 360 * (i / castCount), castLength);
-				// ray.set_from_vector(this.get_body().get_position(), this.get_body().rotation, castLength);
+				sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + (i*3), castLength);
+				// debug draw
+				sensorLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
 			}
 
-			var res = ray.linecast(bodiesArray);
-
-			// debug draw
-			// drawing from ray.start doesn't work but from body.position does, so my linecast is probably off
-			sensorLine.drawLine(ray.start.x, ray.end.y, ray.end.x, ray.end.y);
-			// sensorLine.drawLine(this.get_body().get_position().x, this.get_body().get_position().y, ray.end.x, ray.end.y);
+			var res = sensors[i].linecast(bodiesArray);
 
 			if (res != null) {
 				trace("Hit something!" + res);
@@ -138,9 +148,8 @@ class AutoEntity extends Entity {
 			} else {
 				color = FlxColor.YELLOW;
 			}
+			sensors[i].put();
 		}
-
-		ray.put();
 	}
 
 	override function kill() {
