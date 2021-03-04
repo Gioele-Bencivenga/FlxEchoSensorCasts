@@ -205,7 +205,7 @@ class PlayState extends FlxState {
 
 		FlxEcho.reset_acceleration = true;
 
-		// We'll use Echo's TileMap utility to generate physics bodies for our Tilemap - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
+		// use Echo's TileMap utility to generate physics bodies for our Tilemap - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
 		var tiles = TileMap.generate(levelData.flatten2DArray(), TILE_SIZE, TILE_SIZE, levelData[0].length, levelData.length, 0, 0, 1, null, [2, 3]);
 		for (tile in tiles) {
 			var bounds = tile.bounds(); // Get the bounds of the generated physics body to create a Box sprite from it
@@ -218,7 +218,7 @@ class PlayState extends FlxState {
 			wallTile.add_to_group(collidableBodies);
 		}
 
-		// We'll step through our level data and add objects that way
+		// step through level data and add entities
 		for (j in 0...levelData.length) {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
@@ -226,6 +226,8 @@ class PlayState extends FlxState {
 						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						auto.add_to_group(entitiesGroup);
 						auto.add_to_group(collidableBodies);
+						auto.sensorLine.canvas.scrollFactor.set(0, 0);
+						add(auto.sensorLine.canvas);
 					default:
 						continue;
 				}

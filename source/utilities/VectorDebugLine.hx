@@ -1,0 +1,36 @@
+package utilities;
+
+import flixel.FlxG;
+import flixel.util.FlxColor;
+import flixel.FlxSprite;
+
+using flixel.util.FlxSpriteUtil;
+
+class VectorDebugLine extends FlxSprite {
+	public var canvas(default, null):FlxSprite;
+
+	var lineStyle:LineStyle;
+	var drawStyle:DrawStyle;
+
+	public function new() {
+		super();
+
+		canvas = new FlxSprite();
+		canvas.makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT, true);
+		// add(canvas); add() in playstate!
+	}
+
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+	}
+
+	public function drawLine(_startX:Float, _startY:Float, _endX:Float, _endY:Float, _color = FlxColor.RED, _thickness = 1., _smooth = true) {
+		lineStyle = {
+			color: _color,
+			thickness: _thickness
+		};
+		drawStyle = {smoothing: true};
+
+		canvas.drawLine(_startX, _startY, _endX, _endY, lineStyle, drawStyle);
+	}
+}

@@ -1,5 +1,8 @@
 package entities;
 
+import flixel.util.FlxColor;
+import utilities.VectorDebugLine;
+import flixel.util.FlxTimer;
 import echo.Body;
 import echo.Line;
 import states.PlayState;
@@ -17,15 +20,34 @@ class AutoEntity extends Entity {
 	 */
 	var target(default, null):Supply;
 
+	/**
+	 * The time in seconds between each sensors check.
+	 * 
+	 * Each `tick`s we get what the sensors are hitting.
+	 */
+	var sensTick:Float;
+
+	/**
+	 * The timer that will run the `sense()` function each `sensTick` seconds.
+	 */
+	var sensChecker:FlxTimer;
+
+	public var sensorLine(default, null):VectorDebugLine;
+
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
+
+		sensTick = 0.5;
+		sensChecker = new FlxTimer();
+		sensChecker.start(sensTick, (_) -> sense(), 0);
+
+		sensorLine = new VectorDebugLine();
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
 		seekTarget(PlayState.resource, 100);
-		sense();
 	}
 
 	public function assignTarget(_target:Supply) {
@@ -90,23 +112,30 @@ class AutoEntity extends Entity {
 	 * Get information about the environment from the sensors.
 	 */
 	function sense() {
-		var castCount = 3;
-		var castLength = 50;
+		var castCount = 20; // linecast number TODO: move to class variable
+		var castLength = 15; // linecast length
+		// we need an array of bodies for the linecast
 		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
-		for (i in 0...bodiesArray.length) {
-			if (bodiesArray[i] == this.get_body()) {
-				bodiesArray[i] == null;
-			}
-		}
+
 		var ray = Line.get();
 
 		for (i in 0...castCount) {
-			ray.set_from_vector(this.get_body().get_position(), 100 * (i / castCount), castLength);
+			if (this.get_body() != null)
+				ray.set_from_vector(this.get_body().get_position(), 360 * (i / castCount), castLength);
+
 			var res = ray.linecast(bodiesArray);
 
+			sensorLine.drawLine(this.get_body().get_position().x, this.get_body().get_position().y, ray.end.x, ray.end.y);
+			sensorLine.canvas.setPosition(this.get_body().get_position().x, this.get_body().get_position().y);
+
 			if (res != null) {
-				trace("Hit something!");
+				trace("Hit something!" + res);
+				color = FlxColor.ORANGE;
+			} else {
+				color = FlxColor.YELLOW;
 			}
 		}
+
+		ray.put();
 	}
 }
