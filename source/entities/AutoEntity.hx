@@ -112,8 +112,8 @@ class AutoEntity extends Entity {
 	 * Get information about the environment from the sensors.
 	 */
 	function sense() {
-		var castCount = 1; // linecast number TODO: move to class variable
-		var castLength = 15; // linecast length
+		var castCount = 10; // linecast number TODO: move to class variable
+		var castLength = 20; // linecast length
 		// we need an array of bodies for the linecast
 		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
 
@@ -121,14 +121,14 @@ class AutoEntity extends Entity {
 
 		for (i in 0...castCount) {
 			if (this.get_body() != null)
-				ray.set_from_vector(this.get_body().get_position(), this.get_body().rotation, castLength);
-			// ray.set_from_vector(this.get_body().get_position(), 360 * (i / castCount), castLength);
+				ray.set_from_vector(this.get_body().get_position(), 360 * (i / castCount), castLength);
+				//ray.set_from_vector(this.get_body().get_position(), this.get_body().rotation, castLength);
 
 			var res = ray.linecast(bodiesArray);
 
-			// trying to debug draw
-			//sensorLine.canvas.setPosition(this.get_body().get_position().x, this.get_body().get_position().y);
-			sensorLine.drawLine(this.get_body().get_position().x, this.get_body().get_position().y, ray.end.x, ray.end.y);
+			// debug draw
+			// drawing from ray.start doesn't work but from body.position it does, why?
+			sensorLine.drawLine(ray.start.x, ray.end.y, ray.end.x, ray.end.y);
 
 			if (res != null) {
 				trace("Hit something!" + res);

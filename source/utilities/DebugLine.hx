@@ -1,5 +1,6 @@
 package utilities;
 
+import echo.FlxEcho;
 import flixel.FlxG;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
@@ -16,7 +17,7 @@ class DebugLine extends FlxSprite {
 		super();
 
 		canvas = new FlxSprite();
-		canvas.makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT, true);
+		canvas.makeGraphic(Std.int(FlxEcho.instance.world.width), Std.int(FlxEcho.instance.world.height), FlxColor.TRANSPARENT, true);
 		// add(canvas) in playstate!
 	}
 
