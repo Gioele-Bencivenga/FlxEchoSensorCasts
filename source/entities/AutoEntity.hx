@@ -1,5 +1,7 @@
 package entities;
 
+import echo.Body;
+import echo.Line;
 import states.PlayState;
 import utilities.HxFuncs;
 import supplies.Supply;
@@ -23,6 +25,7 @@ class AutoEntity extends Entity {
 		super.update(elapsed);
 
 		seekTarget(PlayState.resource, 100);
+		sense();
 	}
 
 	public function assignTarget(_target:Supply) {
@@ -80,6 +83,30 @@ class AutoEntity extends Entity {
 			desiredDirection.normalizeTo(newSpeed); // and proceed at the lower speed
 		} else {
 			desiredDirection.normalizeTo(0); // otherwise we stay put
+		}
+	}
+
+	/**
+	 * Get information about the environment from the sensors.
+	 */
+	function sense() {
+		var castCount = 3;
+		var castLength = 50;
+		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
+		for (i in 0...bodiesArray.length) {
+			if (bodiesArray[i] == this.get_body()) {
+				bodiesArray[i] == null;
+			}
+		}
+		var ray = Line.get();
+
+		for (i in 0...castCount) {
+			ray.set_from_vector(this.get_body().get_position(), 100 * (i / castCount), castLength);
+			var res = ray.linecast(bodiesArray);
+
+			if (res != null) {
+				trace("Hit something!");
+			}
 		}
 	}
 }

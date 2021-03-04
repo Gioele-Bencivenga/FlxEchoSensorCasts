@@ -1,5 +1,6 @@
 package states;
 
+import echo.Body;
 import haxe.ui.themes.Theme;
 import utilities.HxFuncs;
 import entities.AutoEntity;
@@ -55,6 +56,13 @@ class PlayState extends FlxState {
 	public static var entitiesGroup:FlxGroup;
 
 	/**
+	 * Group containing the entities, terrain and resources bodies.
+	 * 
+	 * This is used for ease of linecasting in the `AutoEntity.sense()` function.
+	 */
+	public static var collidableBodies:FlxGroup;
+
+	/**
 	 * Simulation camera, the camera displaying the simulation.
 	 */
 	var simCam:FlxZoomCamera;
@@ -83,6 +91,8 @@ class PlayState extends FlxState {
 		entitiesGroup = new FlxGroup();
 		add(entitiesGroup);
 		entitiesGroup.cameras = [simCam];
+
+		collidableBodies = new FlxGroup();
 
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
 		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
@@ -182,7 +192,7 @@ class PlayState extends FlxState {
 
 	function generateCaveTilemap() {
 		// reset the groups to fill them again
-		emptyGroups([entitiesGroup, terrainGroup]);
+		emptyGroups([entitiesGroup, terrainGroup, collidableBodies]);
 
 		gen = new Generator(50, 80); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave();
@@ -201,10 +211,11 @@ class PlayState extends FlxState {
 			var bounds = tile.bounds(); // Get the bounds of the generated physics body to create a Box sprite from it
 			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.fromRGB(230, 240, 245));
 			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
-			//wallTile.set_body(tile); // collisions don't work but feel like they should // attach the generated body to the FlxObject
+			// wallTile.set_body(tile); // collisions don't work but feel like they should // attach the generated body to the FlxObject
 			wallTile.add_body(); // collisions work
 			wallTile.get_body().mass = 0; // tiles are immovable
 			wallTile.add_to_group(terrainGroup); // Instead of `group.add(object)` we use `object.add_to_group(group)`
+			wallTile.add_to_group(collidableBodies);
 		}
 
 		// We'll step through our level data and add objects that way
@@ -214,6 +225,7 @@ class PlayState extends FlxState {
 					case 3:
 						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						auto.add_to_group(entitiesGroup);
+						auto.add_to_group(collidableBodies);
 					default:
 						continue;
 				}
@@ -235,7 +247,8 @@ class PlayState extends FlxState {
 		simCam.follow(auto, 0.2);
 
 		resource = new Supply(auto.get_body().get_position().x + 200, auto.get_body().get_position().y + 150, 10, FlxColor.CYAN);
-		resource.add_to_group(entitiesGroup); // add to collision group
+		resource.add_to_group(entitiesGroup);
+		resource.add_to_group(collidableBodies);
 	}
 
 	/**
