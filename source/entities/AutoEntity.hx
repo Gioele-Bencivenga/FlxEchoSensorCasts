@@ -127,7 +127,7 @@ class AutoEntity extends Entity {
 			var res = ray.linecast(bodiesArray);
 
 			// trying to debug draw
-			sensorLine.canvas.setPosition(this.get_body().get_position().x, this.get_body().get_position().y);
+			//sensorLine.canvas.setPosition(this.get_body().get_position().x, this.get_body().get_position().y);
 			sensorLine.drawLine(this.get_body().get_position().x, this.get_body().get_position().y, ray.end.x, ray.end.y);
 
 			if (res != null) {
