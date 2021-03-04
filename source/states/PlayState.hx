@@ -226,7 +226,8 @@ class PlayState extends FlxState {
 						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						auto.add_to_group(entitiesGroup);
 						auto.add_to_group(collidableBodies);
-						auto.sensorLine.canvas.scrollFactor.set(0, 0);
+						auto.sensorLine.canvas.cameras = [simCam];
+						//auto.sensorLine.canvas.scrollFactor.set(0, 0);
 						add(auto.sensorLine.canvas);
 					default:
 						continue;

@@ -6,7 +6,7 @@ import flixel.FlxSprite;
 
 using flixel.util.FlxSpriteUtil;
 
-class VectorDebugLine extends FlxSprite {
+class DebugLine extends FlxSprite {
 	public var canvas(default, null):FlxSprite;
 
 	var lineStyle:LineStyle;

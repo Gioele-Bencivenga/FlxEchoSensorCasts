@@ -1,7 +1,7 @@
 package entities;
 
 import flixel.util.FlxColor;
-import utilities.VectorDebugLine;
+import utilities.DebugLine;
 import flixel.util.FlxTimer;
 import echo.Body;
 import echo.Line;
@@ -32,7 +32,7 @@ class AutoEntity extends Entity {
 	 */
 	var sensChecker:FlxTimer;
 
-	public var sensorLine(default, null):VectorDebugLine;
+	public var sensorLine(default, null):DebugLine;
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
@@ -41,7 +41,7 @@ class AutoEntity extends Entity {
 		sensChecker = new FlxTimer();
 		sensChecker.start(sensTick, (_) -> sense(), 0);
 
-		sensorLine = new VectorDebugLine();
+		sensorLine = new DebugLine();
 	}
 
 	override function update(elapsed:Float) {
@@ -112,7 +112,7 @@ class AutoEntity extends Entity {
 	 * Get information about the environment from the sensors.
 	 */
 	function sense() {
-		var castCount = 20; // linecast number TODO: move to class variable
+		var castCount = 1; // linecast number TODO: move to class variable
 		var castLength = 15; // linecast length
 		// we need an array of bodies for the linecast
 		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
@@ -121,12 +121,14 @@ class AutoEntity extends Entity {
 
 		for (i in 0...castCount) {
 			if (this.get_body() != null)
-				ray.set_from_vector(this.get_body().get_position(), 360 * (i / castCount), castLength);
+				ray.set_from_vector(this.get_body().get_position(), this.get_body().rotation, castLength);
+			// ray.set_from_vector(this.get_body().get_position(), 360 * (i / castCount), castLength);
 
 			var res = ray.linecast(bodiesArray);
 
-			sensorLine.drawLine(this.get_body().get_position().x, this.get_body().get_position().y, ray.end.x, ray.end.y);
+			// trying to debug draw
 			sensorLine.canvas.setPosition(this.get_body().get_position().x, this.get_body().get_position().y);
+			sensorLine.drawLine(this.get_body().get_position().x, this.get_body().get_position().y, ray.end.x, ray.end.y);
 
 			if (res != null) {
 				trace("Hit something!" + res);
@@ -137,5 +139,13 @@ class AutoEntity extends Entity {
 		}
 
 		ray.put();
+	}
+
+	override function kill() {
+		super.kill();
+		if (sensChecker.active) {
+			sensChecker.cancel();
+			sensChecker.destroy();
+		}
 	}
 }
