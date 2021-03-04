@@ -120,15 +120,17 @@ class AutoEntity extends Entity {
 		var ray = Line.get();
 
 		for (i in 0...castCount) {
-			if (this.get_body() != null)
+			if (this.get_body() != null) {
 				ray.set_from_vector(this.get_body().get_position(), 360 * (i / castCount), castLength);
-				//ray.set_from_vector(this.get_body().get_position(), this.get_body().rotation, castLength);
+				// ray.set_from_vector(this.get_body().get_position(), this.get_body().rotation, castLength);
+			}
 
 			var res = ray.linecast(bodiesArray);
 
 			// debug draw
-			// drawing from ray.start doesn't work but from body.position it does, why?
+			// drawing from ray.start doesn't work but from body.position does, so my linecast is probably off
 			sensorLine.drawLine(ray.start.x, ray.end.y, ray.end.x, ray.end.y);
+			// sensorLine.drawLine(this.get_body().get_position().x, this.get_body().get_position().y, ray.end.x, ray.end.y);
 
 			if (res != null) {
 				trace("Hit something!" + res);
