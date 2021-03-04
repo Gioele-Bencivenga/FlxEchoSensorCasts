@@ -17,11 +17,7 @@ class DebugLine extends FlxSprite {
 
 		canvas = new FlxSprite();
 		canvas.makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT, true);
-		// add(canvas); add() in playstate!
-	}
-
-	override function update(elapsed:Float) {
-		super.update(elapsed);
+		// add(canvas) in playstate!
 	}
 
 	public function drawLine(_startX:Float, _startY:Float, _endX:Float, _endY:Float, _color = FlxColor.RED, _thickness = 1., _smooth = true) {
