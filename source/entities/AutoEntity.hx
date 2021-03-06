@@ -28,14 +28,9 @@ class AutoEntity extends Entity {
 	var sensTick:Float;
 
 	/**
-	 * The timer that will run the `sense()` function each `sensTick` seconds.
+	 * The timer that will `sense()` each `sensTick` seconds.
 	 */
-	var sensChecker:FlxTimer;
-
-	/**
-	 * The line that is drawn to visualize sensor position.
-	 */
-	public var sensorLine(default, null):DebugLine;
+	var senserTimer:FlxTimer;
 
 	/**
 	 * The number of environment sensors that this entity will have.
@@ -45,7 +40,7 @@ class AutoEntity extends Entity {
 	/**
 	 * The array containing the entity's environment sensors.
 	 */
-	var sensors:Array<Line>;
+	public var sensors(default, null):Array<Line>;
 
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
@@ -54,10 +49,8 @@ class AutoEntity extends Entity {
 		sensors = [for (i in 0...sensorCount) null]; // fill the sensors array with nulls
 
 		sensTick = 0.5;
-		sensChecker = new FlxTimer();
-		sensChecker.start(sensTick, (_) -> sense(), 0);
-
-		sensorLine = new DebugLine();
+		senserTimer = new FlxTimer();
+		senserTimer.start(sensTick, (_) -> sense(), 0);
 	}
 
 	override function update(elapsed:Float) {
@@ -134,11 +127,9 @@ class AutoEntity extends Entity {
 
 		for (i in 0...sensors.length) {
 			sensors[i] = Line.get();
-			if (this.get_body() != null) {
-				sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + (i*3), castLength);
-				// debug draw
-				sensorLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
-			}
+			sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + (i * 3), castLength);
+			// debug draw
+			DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
 
 			var res = sensors[i].linecast(bodiesArray);
 
@@ -154,9 +145,9 @@ class AutoEntity extends Entity {
 
 	override function kill() {
 		super.kill();
-		if (sensChecker.active) {
-			sensChecker.cancel();
-			sensChecker.destroy();
+		if (senserTimer.active) {
+			senserTimer.cancel();
+			senserTimer.destroy();
 		}
 	}
 }

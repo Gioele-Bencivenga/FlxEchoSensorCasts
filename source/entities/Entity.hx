@@ -1,5 +1,6 @@
 package entities;
 
+import echo.Body;
 import hxmath.math.MathUtil;
 import flixel.math.FlxVector;
 import hxmath.math.Vector2;

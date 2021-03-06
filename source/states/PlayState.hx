@@ -46,6 +46,11 @@ class PlayState extends FlxState {
 	public static var resource:Supply;
 
 	/**
+	 * Canvas is needed in order to drawLine().
+	 */
+	public static var canvas:FlxSprite;
+
+	/**
 	 * Collision group containing the terrain tiles.
 	 */
 	public static var terrainGroup:FlxGroup;
@@ -109,7 +114,19 @@ class PlayState extends FlxState {
 		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
 		uiView.findComponent("lbl_version", Label).text = haxe.macro.Compiler.getDefine("GAME_VERSION");
 
+		/// WORLD
 		generateCaveTilemap();
+
+		/// DRAWING CANVAS
+		canvas = new FlxSprite();
+		canvas.makeGraphic(Std.int(FlxEcho.instance.world.width), Std.int(FlxEcho.instance.world.height), FlxColor.TRANSPARENT, true);
+		canvas.cameras = [simCam];
+		add(canvas);
+
+		/// COLLISIONS
+		entitiesGroup.listen(terrainGroup);
+
+		/// CAMERA
 		simCam.targetZoom = 1.2;
 		simCam.zoomMargin = 0.2;
 		simCam.bgColor.setRGB(25, 21, 0);
@@ -226,26 +243,11 @@ class PlayState extends FlxState {
 						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						auto.add_to_group(entitiesGroup);
 						auto.add_to_group(collidableBodies);
-						auto.sensorLine.canvas.cameras = [simCam];
-						//auto.sensorLine.canvas.scrollFactor.set(0, 0);
-						add(auto.sensorLine.canvas);
 					default:
 						continue;
 				}
 			}
 		}
-
-		/*
-			auto = new AutoEntity(0, 0, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
-			auto.add_to_group(entitiesGroup);
-
-			var wallTile = new Tile(5, 5, Std.int(TILE_SIZE * 1.5), Std.int(TILE_SIZE * 1.5), FlxColor.fromRGB(230, 240, 245));
-			wallTile.add_body();
-			wallTile.get_body().mass = 0; // tiles are immovable
-			wallTile.add_to_group(terrainGroup);
-		 */
-
-		entitiesGroup.listen(terrainGroup);
 
 		simCam.follow(auto, 0.2);
 
