@@ -52,8 +52,6 @@ class Supply extends FlxSprite {
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-
-		this.get_body().set_position(FlxG.mouse.x, FlxG.mouse.y);
 	}
 
 	/**

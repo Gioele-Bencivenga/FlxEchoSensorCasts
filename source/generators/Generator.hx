@@ -1,5 +1,6 @@
 package generators;
 
+import flixel.addons.editors.ogmo.FlxOgmo3Loader.LevelData;
 import flixel.FlxG;
 
 /**
@@ -68,13 +69,32 @@ class Generator {
 			for (y in 0...levelHeight) {
 				if (!playerPlaced) {
 					if (_levelData[x][y] == 0) {
-						_levelData[x][y] = 3;
+						_levelData[x][y] = 2;
 						playerPlaced = true;
 					}
 				}
 			}
 		}
 
+		return _levelData;
+	}
+
+	/**
+	 * Places some resources around by flipping some `0` tiles to `3`.
+	 * @param _levelData the level you want to place the resources in
+	 * @param _chance the chance of filling each tile in `%`. chance is applied to every `0` tile
+	 * @return the modified `_levelData` now containing some `3`s
+	 */
+	function placeResources(_levelData:Array<Array<Int>>, _chance:Int = 3):Array<Array<Int>> {
+		for (x in 0...levelWidth) {
+			for (y in 0...levelHeight) {
+				if (_levelData[x][y] == 0) { // empty tile
+					if (FlxG.random.bool(_chance)) {
+						_levelData[x][y] = 3;
+					}
+				}
+			}
+		}
 		return _levelData;
 	}
 
@@ -126,6 +146,7 @@ class Generator {
 		}
 
 		levelData = placePlayer(levelData);
+		levelData = placeResources(levelData);
 
 		return levelData;
 	}

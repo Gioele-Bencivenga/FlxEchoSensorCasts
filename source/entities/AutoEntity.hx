@@ -1,5 +1,11 @@
 package entities;
 
+import flixel.FlxObject;
+import tiles.Tile;
+import flixel.FlxG;
+import hxmath.math.MathUtil;
+import flixel.util.helpers.FlxRange;
+import hxmath.math.Vector2;
 import flixel.util.FlxColor;
 import utilities.DebugLine;
 import flixel.util.FlxTimer;
@@ -42,13 +48,40 @@ class AutoEntity extends Entity {
 	 */
 	public var sensors(default, null):Array<Line>;
 
+	/**
+	 * Array containing the rotations of the sensors.
+	 */
+	var sensorsRotations:Array<Float>;
+
+	/**
+	 * The range of possible rotations that sensors of an entity can assume.
+	 */
+	var possibleRotations:FlxRange<Float>;
+
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
 
+		possibleRotations = new FlxRange(-40., 40.);
+
 		sensorCount = 5;
+		sensorsRotations = [
+			for (i in 0...sensorCount) {
+				if (i == 0)
+					possibleRotations.start;
+				else if (i == 1)
+					possibleRotations.start + (possibleRotations.end / 2);
+				else if (i == 2)
+					possibleRotations.start + possibleRotations.end;
+				else if (i == 3)
+					possibleRotations.end + (possibleRotations.start / 2);
+				else if (i == 4)
+					possibleRotations.end;
+			}
+		];
+
 		sensors = [for (i in 0...sensorCount) null]; // fill the sensors array with nulls
 
-		sensTick = 0.5;
+		sensTick = 0.3;
 		senserTimer = new FlxTimer();
 		senserTimer.start(sensTick, (_) -> sense(), 0);
 	}
@@ -56,25 +89,21 @@ class AutoEntity extends Entity {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		seekTarget(PlayState.resource, 100);
-	}
-
-	public function assignTarget(_target:Supply) {
-		target = _target;
+		seekTarget(FlxG.mouse.getPosition().x, FlxG.mouse.getPosition().y, 100);
 	}
 
 	/**
-	 * Points the `desiredDirection` vector towards the `target` with a length of `maxSpeed` or less. The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
-	 * @param _target if you want you can specify a different target from `target` to follow, otherwise this will get set = to `target` if left as `null`
+	 * Points the `desiredDirection` vector towards the `target` with a length of `maxSpeed` or less. 
+	 * 
+	 * The movement handling method in `Entity` will then move the entity in the `desiredDirection`.
+	 * @param _targetX X coordinate of the target
+	 * @param _targetY Y coordinate of the target
 	 * @param _arriveDistance 0 by default, set it to the distance after which the entity must start slowing down (higher = further)
 	 */
-	function seekTarget(_target:Supply = null, _arriveDistance = 0) {
-		// if no _target has been provided we use the default target
-		if (_target == null)
-			_target = target;
-
-		// subtracting the target position vector from the entity's position vector gives us a vector pointing from us to the target
-		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
+	function seekTarget(_targetX:Float, _targetY:Float, _arriveDistance = 0) {
+		var targetPos = new Vector2(_targetX, _targetY);
+		// subtracting the target position vector from the target's position vector gives us a vector pointing from us to the target
+		desiredDirection = targetPos - this.get_body().get_position();
 
 		var distance = desiredDirection.length; // we use the vector's length to measure the distance
 		// if _arriveDistance was set higher than 0 and the measured distance is less than it
@@ -96,13 +125,10 @@ class AutoEntity extends Entity {
 	 * @param _target if you want you can specify a different target from `target` to flee from, otherwise this will get set = to `target` if left as `null`
 	 * @param _departDistance 0 by default, set it to the distance after which the entity must start fleeing the target (higher = further)
 	 */
-	function fleeTarget(_target:Supply = null, _departDistance:Float = 0) {
-		// if no _target has been provided we use the default target
-		if (_target == null)
-			_target = target;
-
+	function fleeTarget(_targetX:Float, _targetY:Float, _departDistance:Float = 0) {
+		var targetPos = new Vector2(_targetX, _targetY);
 		// subtracting the target position vector from the entity's position vector gives us a vector pointing from us to the target
-		desiredDirection = _target.get_body().get_position() - this.get_body().get_position();
+		desiredDirection = targetPos - this.get_body().get_position();
 		// we invert the vector so it points opposite
 		desiredDirection.multiplyWith(-1);
 
@@ -121,23 +147,29 @@ class AutoEntity extends Entity {
 	 * Get information about the environment from the sensors.
 	 */
 	function sense() {
-		var castLength = 40; // linecast length
+		var castLength = 120; // linecast length
 		// we need an array of bodies for the linecast
 		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
 
+		DebugLine.clearCanvas(); // clear previously drawn lines
+
 		for (i in 0...sensors.length) {
 			sensors[i] = Line.get();
-			sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + (i * 3), castLength);
-			// debug draw
-			DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
+			sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + sensorsRotations[i], castLength);
 
-			var res = sensors[i].linecast(bodiesArray);
+			var res = sensors[i].linecast_all(bodiesArray);
 
-			if (res != null) {
-				trace("Hit something!" + res);
-				color = FlxColor.ORANGE;
+			if (res.length > 1) { // hit something
+				for (r in res) {
+					if (r.body.get_object() != this) { // hit something other than ourselves
+						if(/*object hit is resource*/){
+							DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.YELLOW, 1.5);
+						}
+					}
+				}
 			} else {
 				color = FlxColor.YELLOW;
+				DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
 			}
 			sensors[i].put();
 		}
