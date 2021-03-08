@@ -1,5 +1,6 @@
 package entities;
 
+import hxmath.math.MathUtil;
 import flixel.FlxG;
 import flixel.util.helpers.FlxRange;
 import hxmath.math.Vector2;
@@ -63,7 +64,7 @@ class AutoEntity extends Entity {
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
 
-		possibleRotations = new FlxRange(-40., 40.);
+		possibleRotations = new FlxRange(-60., 60.);
 
 		sensorsRotations = [
 			for (i in 0...SENSORS_COUNT) {
@@ -88,7 +89,7 @@ class AutoEntity extends Entity {
 					case 1:
 						140;
 					case 2:
-						170;
+						150;
 					case 3:
 						140;
 					case 4:
@@ -172,34 +173,32 @@ class AutoEntity extends Entity {
 
 		DebugLine.clearCanvas(); // clear previously drawn lines
 
-		for (i in 0...sensors.length) {
-			sensors[i] = Line.get();
-			sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + sensorsRotations[i], sensorsLengths[i]);
+		for (i in 0...sensors.length) { // do this for each sensor
+			sensors[i] = Line.get(); // init the sensor
+			// create a vector to subtract from the body's position in order to to gain a relative offset
+			var relOffset = Vector2.fromPolar(MathUtil.degToRad(this.get_body().rotation + sensorsRotations[i]),
+				(this.get_body().shape.bounds().height / 2) + 10); // radius is distance from body
+			var sensorPos = this.get_body()
+				.get_position()
+				.addWith(relOffset); // this body's pos added with the offset will give us a sensor starting position out of the body
+			// set the actual sensors position
+			sensors[i].set_from_vector(sensorPos, this.get_body().rotation + sensorsRotations[i], sensorsLengths[i]);
+			// cast the line, returning all intersections
+			var hit = sensors[i].linecast(bodiesArray);
 
-			var res = sensors[i].linecast_all(bodiesArray);
-
-			if (res.length > 1) { // hit something
-				for (r in res) {
-					if (r.body.get_object() != this) { // hit something other than ourselves
-						switch (r.body.bodyType) {
-							case 1: // hit a Tile (wall)
-								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.YELLOW, 1.5);
-								color = FlxColor.YELLOW;
-							case 2: // hit an Entity
-								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.ORANGE, 1.5);
-								color = FlxColor.ORANGE;
-							case 3: // hit a Supply
-								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.CYAN, 1.5);
-								color = FlxColor.CYAN;
-							default:
-								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
-								color = FlxColor.PURPLE;
-						}
-					}
+			if (hit != null) { // if we hit something
+				switch (hit.body.bodyType) {
+					case 1: // hit a Tile (wall)
+						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.YELLOW, 1.5);
+					case 2: // hit an Entity
+						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.MAGENTA, 1.5);
+					case 3: // hit a Supply
+						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.CYAN, 1.5);
+					default:
+						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
 				}
-			} else {
+			} else { // if we didn't hit anything
 				DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
-				color = FlxColor.PURPLE;
 			}
 			sensors[i].put();
 		}
