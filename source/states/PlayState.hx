@@ -107,7 +107,7 @@ class PlayState extends FlxState {
 		uiView.findComponent("btn_zoom", Button).onClick = btn_zoom_onClick;
 		uiView.findComponent("btn_zoom_+", Button).onClick = btn_zoomPlus_onClick;
 		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
-		uiView.findComponent("lbl_version", Label).text = haxe.macro.Compiler.getDefine("GAME_VERSION");
+		uiView.findComponent("lbl_version", Label).text = haxe.macro.Compiler.getDefine("PROJECT_VERSION");
 
 		/// WORLD
 		generateCaveTilemap();
@@ -237,11 +237,11 @@ class PlayState extends FlxState {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
 					case 2:
-						var newAgent = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
+						var newAgent = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 0.95), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						agents.add(newAgent);
 						newAgent.add_to_group(entitiesGroup);
 						newAgent.add_to_group(collidableBodies);
-						FlxMouseEventManager.add(cast(newAgent, FlxSprite), onAgentClick);
+						//FlxMouseEventManager.add(newAgent, onAgentClick);
 					case 3:
 						resource = new Supply(i * TILE_SIZE, j * TILE_SIZE, FlxG.random.int(1, 15), FlxColor.CYAN);
 						resource.add_to_group(entitiesGroup);

@@ -2,9 +2,9 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<!-- This should let me access a variable with the version value from code using `var ver = haxe.macro.Compiler.getDefine("GAME_VERSION");`-->
-	<set name="GAME_VERSION" value="0.0.3" />
-	<haxedef name="GAME_VERSION" value="${GAME_VERSION}" />
+	<!-- This var's value can be accessed from code using `var vers = haxe.macro.Compiler.getDefine("PROJECT_VERSION");`-->
+	<set name="PROJECT_VERSION" value="0.0.5" />
+	<haxedef name="PROJECT_VERSION" value="${PROJECT_VERSION}" />
 
 	<app title="TilemapGen" file="ProjectTilemap" main="Main" version="${GAME_VERSION}" company="Gioele Bencivenga" package="com.haxeflixel.TilemapGen" />
 
