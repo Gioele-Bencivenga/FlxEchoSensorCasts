@@ -62,15 +62,17 @@ class Generator {
 	 * @param _levelData the level we want to place the player in
 	 * @return returns the modified `_levelData` that was passed in
 	 */
-	function placePlayer(_levelData:Array<Array<Int>>):Array<Array<Int>> {
-		var playerPlaced = false;
-
+	function placeAgents(_levelData:Array<Array<Int>>, _agentsCount = 1):Array<Array<Int>> {
+		var agentsPlaced = 0;
+		
 		for (x in 0...levelWidth) {
 			for (y in 0...levelHeight) {
-				if (!playerPlaced) {
-					if (_levelData[x][y] == 0) {
-						_levelData[x][y] = 2;
-						playerPlaced = true;
+				if (_levelData[x][y] == 0) {
+					if (agentsPlaced < _agentsCount) {
+						if (FlxG.random.bool(2)) {
+							_levelData[x][y] = 2;
+							agentsPlaced++;
+						}
 					}
 				}
 			}
@@ -85,7 +87,7 @@ class Generator {
 	 * @param _chance the chance of filling each tile in `%`. chance is applied to every `0` tile
 	 * @return the modified `_levelData` now containing some `3`s
 	 */
-	function placeResources(_levelData:Array<Array<Int>>, _chance:Int = 3):Array<Array<Int>> {
+	function placeResources(_levelData:Array<Array<Int>>, _chance:Int = 2):Array<Array<Int>> {
 		for (x in 0...levelWidth) {
 			for (y in 0...levelHeight) {
 				if (_levelData[x][y] == 0) { // empty tile
@@ -116,16 +118,17 @@ class Generator {
 	 * Tweak the parameters to obtain different results, although it should generally resemble a cave system.
 	 *
 	 * Watch out, this algorithm doesn't guarantee all parts of the cave will be accessible!
-	 * @param _aliveChance = 0.4 the probability that a cell will start out alive
-	 * @param _deathLimit = 3 the minimum number of neighbours needed kill a cell
-	 * @param _birthLimit = 4 the minimum number of neighbours needed to make a cell alive
+	 * @param _agentsCount the number of agents that will be placed around the generated world 
+	 * @param _aliveChance the probability that a cell will start out alive
+	 * @param _deathLimit the minimum number of neighbours needed kill a cell
+	 * @param _birthLimit the minimum number of neighbours needed to make a cell alive
 	 * @param _overcrowdLimit = 6 the maximum number of neighbours that a cell can have without dying
 	 * @param _stepNumber = 50 the default number of steps of simulation we run - generally the higher the smoother
 	 * @param ?_levelWidth if specified overrides the width that was given to the `Generator` on creation
 	 * @param ?_levelHeight if specified overrides the height that was given to the `Generator` on creation
 	 * @return a matrix of `Int`s that's hopefully similar in shape to a cave
 	 */
-	public function generateCave(_aliveChance = 0.25, _deathLimit = 2, _birthLimit = 3, _stepNumber = 7, ?_levelWidth:Int,
+	public function generateCave(_agentsCount = 1, _aliveChance = 0.25, _deathLimit = 2, _birthLimit = 3, _stepNumber = 7, ?_levelWidth:Int,
 			?_levelHeight:Int):Array<Array<Int>> {
 		// if new dimensions were passed in we modify them
 		if (_levelWidth != null)
@@ -145,7 +148,7 @@ class Generator {
 			levelData = doStep(levelData, _deathLimit, _birthLimit);
 		}
 
-		levelData = placePlayer(levelData);
+		levelData = placeAgents(levelData, _agentsCount);
 		levelData = placeResources(levelData);
 
 		return levelData;

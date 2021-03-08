@@ -12,7 +12,7 @@ class Entity extends FlxSprite {
 	/**
 	 * Maximum velocity that this `Entity`'s physics body can reach.
 	 */
-	public static inline final MAX_VELOCITY = 1000;
+	public static inline final MAX_VELOCITY = 500;
 
 	/**
 	 * Maximum rotational velocity that this `Entity`'s physics body can reach.
@@ -66,7 +66,7 @@ class Entity extends FlxSprite {
 			rotational_drag: 5,
 			max_velocity_length: Entity.MAX_VELOCITY,
 			max_rotational_velocity: Entity.MAX_ROTATIONAL_VELOCITY,
-		});
+		}).bodyType = 2; // info returned by environment sensors
 	}
 
 	override function update(elapsed:Float) {

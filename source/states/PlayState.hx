@@ -1,6 +1,5 @@
 package states;
 
-import echo.Body;
 import haxe.ui.themes.Theme;
 import utilities.HxFuncs;
 import entities.AutoEntity;
@@ -14,18 +13,14 @@ import haxe.ui.components.*;
 import haxe.ui.Toolkit;
 import flixel.FlxCamera;
 import generators.Generator;
-import entities.Entity;
 import tiles.Tile;
 import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSprite;
-import flixel.FlxObject.*;
-import flixel.math.FlxPoint;
 import flixel.group.FlxGroup;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
 import echo.util.TileMap;
+import flixel.input.mouse.FlxMouseEventManager;
 
 using Math;
 using echo.FlxEcho;
@@ -39,7 +34,7 @@ class PlayState extends FlxState {
 
 	var gen:Generator;
 
-	var auto:AutoEntity;
+	var agents:FlxTypedGroup<AutoEntity>;
 
 	var levelData:Array<Array<Int>>;
 
@@ -63,7 +58,7 @@ class PlayState extends FlxState {
 	/**
 	 * Group containing the entities, terrain and resources bodies.
 	 * 
-	 * This is used for ease of linecasting in the `AutoEntity.sense()` function.
+	 * This is used for ease of linecasting in the `agentsEntity.sense()` function.
 	 */
 	public static var collidableBodies:FlxGroup;
 
@@ -125,6 +120,7 @@ class PlayState extends FlxState {
 
 		/// COLLISIONS
 		entitiesGroup.listen(terrainGroup);
+		entitiesGroup.listen(entitiesGroup);
 
 		/// CAMERA
 		simCam.targetZoom = 1.2;
@@ -211,8 +207,8 @@ class PlayState extends FlxState {
 		// reset the groups to fill them again
 		emptyGroups([entitiesGroup, terrainGroup, collidableBodies]);
 
-		gen = new Generator(50, 80); // we instantiate a generator that will generate a matrix of cells
-		levelData = gen.generateCave();
+		gen = new Generator(70, 110); // we instantiate a generator that will generate a matrix of cells
+		levelData = gen.generateCave(2);
 
 		// First thing we want to do before creating any physics objects is init() our Echo world.
 		FlxEcho.init({
@@ -229,20 +225,23 @@ class PlayState extends FlxState {
 			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.fromRGB(230, 240, 245));
 			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
 			// wallTile.set_body(tile); // collisions don't work but feel like they should // attach the generated body to the FlxObject
-			wallTile.add_body();
+			wallTile.add_body().bodyType = 1; // sensors understand 1 = wall, 2 = entity, 3 = resource...
 			wallTile.get_body().mass = 0; // tiles are immovable
 			wallTile.add_to_group(terrainGroup); // Instead of `group.add(object)` we use `object.add_to_group(group)`
 			wallTile.add_to_group(collidableBodies);
 		}
 
+		agents = new FlxTypedGroup<AutoEntity>(20);
 		// step through level data and add entities
 		for (j in 0...levelData.length) {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
 					case 2:
-						auto = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
-						auto.add_to_group(entitiesGroup);
-						auto.add_to_group(collidableBodies);
+						var newAgent = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 1.1), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
+						agents.add(newAgent);
+						newAgent.add_to_group(entitiesGroup);
+						newAgent.add_to_group(collidableBodies);
+						FlxMouseEventManager.add(cast(newAgent, FlxSprite), onAgentClick);
 					case 3:
 						resource = new Supply(i * TILE_SIZE, j * TILE_SIZE, FlxG.random.int(1, 15), FlxColor.CYAN);
 						resource.add_to_group(entitiesGroup);
@@ -252,8 +251,15 @@ class PlayState extends FlxState {
 				}
 			}
 		}
+		simCam.follow(agents.getFirstAlive(), 0.2);
+	}
 
-		simCam.follow(auto, 0.2);
+	/**
+	 * Function that gets called when an agent is clicked.
+	 * @param _agent the agent that was clicked
+	 */
+	function onAgentClick(_agent:FlxSprite) {
+		simCam.follow(_agent, 0.2);
 	}
 
 	/**

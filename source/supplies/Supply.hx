@@ -30,7 +30,7 @@ class Supply extends FlxSprite {
 			mass: 0.5,
 			drag_length: 500,
 			rotational_drag: 150
-		});
+		}).bodyType = 3;
 	}
 
 	/**

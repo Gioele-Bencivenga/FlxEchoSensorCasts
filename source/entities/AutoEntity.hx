@@ -1,9 +1,6 @@
 package entities;
 
-import flixel.FlxObject;
-import tiles.Tile;
 import flixel.FlxG;
-import hxmath.math.MathUtil;
 import flixel.util.helpers.FlxRange;
 import hxmath.math.Vector2;
 import flixel.util.FlxColor;
@@ -22,6 +19,11 @@ using echo.FlxEcho;
  */
 class AutoEntity extends Entity {
 	/**
+	 * Number of environment sensors that agents have.
+	 */
+	public static inline final SENSORS_COUNT = 5;
+
+	/**
 	 * The current `Supply` an entity wants to reach. Can be set using `assignTarget()`.
 	 */
 	var target(default, null):Supply;
@@ -39,11 +41,6 @@ class AutoEntity extends Entity {
 	var senserTimer:FlxTimer;
 
 	/**
-	 * The number of environment sensors that this entity will have.
-	 */
-	var sensorCount:Int;
-
-	/**
 	 * The array containing the entity's environment sensors.
 	 */
 	public var sensors(default, null):Array<Line>;
@@ -58,14 +55,18 @@ class AutoEntity extends Entity {
 	 */
 	var possibleRotations:FlxRange<Float>;
 
+	/**
+	 * Array containing the lengths of the sensors.
+	 */
+	var sensorsLengths:Array<Float>;
+
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
 
 		possibleRotations = new FlxRange(-40., 40.);
 
-		sensorCount = 5;
 		sensorsRotations = [
-			for (i in 0...sensorCount) {
+			for (i in 0...SENSORS_COUNT) {
 				if (i == 0)
 					possibleRotations.start;
 				else if (i == 1)
@@ -79,9 +80,28 @@ class AutoEntity extends Entity {
 			}
 		];
 
-		sensors = [for (i in 0...sensorCount) null]; // fill the sensors array with nulls
+		sensorsLengths = [
+			for (i in 0...SENSORS_COUNT) {
+				switch (i) {
+					case 0:
+						120;
+					case 1:
+						140;
+					case 2:
+						170;
+					case 3:
+						140;
+					case 4:
+						120;
+					default:
+						100;
+				}
+			}
+		];
 
-		sensTick = 0.3;
+		sensors = [for (i in 0...SENSORS_COUNT) null]; // fill the sensors array with nulls
+
+		sensTick = 0.2;
 		senserTimer = new FlxTimer();
 		senserTimer.start(sensTick, (_) -> sense(), 0);
 	}
@@ -147,7 +167,6 @@ class AutoEntity extends Entity {
 	 * Get information about the environment from the sensors.
 	 */
 	function sense() {
-		var castLength = 120; // linecast length
 		// we need an array of bodies for the linecast
 		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
 
@@ -155,21 +174,32 @@ class AutoEntity extends Entity {
 
 		for (i in 0...sensors.length) {
 			sensors[i] = Line.get();
-			sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + sensorsRotations[i], castLength);
+			sensors[i].set_from_vector(this.get_body().get_position(), this.get_body().rotation + sensorsRotations[i], sensorsLengths[i]);
 
 			var res = sensors[i].linecast_all(bodiesArray);
 
 			if (res.length > 1) { // hit something
 				for (r in res) {
 					if (r.body.get_object() != this) { // hit something other than ourselves
-						if(/*object hit is resource*/){
-							DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.YELLOW, 1.5);
+						switch (r.body.bodyType) {
+							case 1: // hit a Tile (wall)
+								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.YELLOW, 1.5);
+								color = FlxColor.YELLOW;
+							case 2: // hit an Entity
+								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.ORANGE, 1.5);
+								color = FlxColor.ORANGE;
+							case 3: // hit a Supply
+								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.CYAN, 1.5);
+								color = FlxColor.CYAN;
+							default:
+								DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
+								color = FlxColor.PURPLE;
 						}
 					}
 				}
 			} else {
-				color = FlxColor.YELLOW;
 				DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
+				color = FlxColor.PURPLE;
 			}
 			sensors[i].put();
 		}

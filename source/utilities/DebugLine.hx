@@ -29,6 +29,8 @@ class DebugLine extends FlxSprite {
 
 		var lineSprite = PlayState.canvas.drawLine(_startX, _startY, _endX, _endY, lineStyle, drawStyle);
 
+		PlayState.canvas = lineSprite;
+		
 		return lineSprite;
 	}
 
