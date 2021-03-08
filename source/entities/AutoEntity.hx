@@ -22,7 +22,7 @@ class AutoEntity extends Entity {
 	/**
 	 * Number of environment sensors that agents have.
 	 */
-	public static inline final SENSORS_COUNT = 5;
+	public static inline final SENSORS_COUNT = 6;
 
 	/**
 	 * The current `Supply` an entity wants to reach. Can be set using `assignTarget()`.
@@ -61,23 +61,38 @@ class AutoEntity extends Entity {
 	 */
 	var sensorsLengths:Array<Float>;
 
+	/**
+	 * Whether this entity is the camera's target or not.
+	 * 
+	 * Updated in the PlayState's `onAgentClick()` function.
+	 */
+	public var isCamTarget:Bool;
+
 	public function new(_x:Float, _y:Float, _width:Int, _height:Int, _color:Int) {
 		super(_x, _y, _width, _height, _color);
 
-		possibleRotations = new FlxRange(-60., 60.);
+		isCamTarget = false;
+
+		possibleRotations = new FlxRange(-65., 65.);
 
 		sensorsRotations = [
 			for (i in 0...SENSORS_COUNT) {
-				if (i == 0)
-					possibleRotations.start;
-				else if (i == 1)
-					possibleRotations.start + (possibleRotations.end / 2);
-				else if (i == 2)
-					possibleRotations.start + possibleRotations.end;
-				else if (i == 3)
-					possibleRotations.end + (possibleRotations.start / 2);
-				else if (i == 4)
-					possibleRotations.end;
+				switch (i) {
+					case 0:
+						possibleRotations.start;
+					case 1:
+						possibleRotations.start + (possibleRotations.end / 2);
+					case 2:
+						possibleRotations.start + (possibleRotations.end - (possibleRotations.end / 10));
+					case 3:
+						possibleRotations.end + (possibleRotations.start + (possibleRotations.end / 10));
+					case 4:
+						possibleRotations.end + (possibleRotations.start / 2);
+					case 5:
+						possibleRotations.end;
+					default:
+						0;
+				}
 			}
 		];
 
@@ -87,12 +102,14 @@ class AutoEntity extends Entity {
 					case 0:
 						120;
 					case 1:
-						140;
+						135;
 					case 2:
-						150;
+						160;
 					case 3:
-						140;
+						160;
 					case 4:
+						135;
+					case 5:
 						120;
 					default:
 						100;
@@ -102,7 +119,7 @@ class AutoEntity extends Entity {
 
 		sensors = [for (i in 0...SENSORS_COUNT) null]; // fill the sensors array with nulls
 
-		sensTick = 0.2;
+		sensTick = 0.15;
 		senserTimer = new FlxTimer();
 		senserTimer.start(sensTick, (_) -> sense(), 0);
 	}
@@ -171,7 +188,8 @@ class AutoEntity extends Entity {
 		// we need an array of bodies for the linecast
 		var bodiesArray:Array<Body> = PlayState.collidableBodies.get_group_bodies();
 
-		DebugLine.clearCanvas(); // clear previously drawn lines
+		if (isCamTarget)
+			DebugLine.clearCanvas(); // clear previously drawn lines
 
 		for (i in 0...sensors.length) { // do this for each sensor
 			sensors[i] = Line.get(); // init the sensor
@@ -185,20 +203,23 @@ class AutoEntity extends Entity {
 			sensors[i].set_from_vector(sensorPos, this.get_body().rotation + sensorsRotations[i], sensorsLengths[i]);
 			// cast the line, returning all intersections
 			var hit = sensors[i].linecast(bodiesArray);
-
 			if (hit != null) { // if we hit something
+				var lineColor = FlxColor.RED;
 				switch (hit.body.bodyType) {
 					case 1: // hit a Tile (wall)
-						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.YELLOW, 1.5);
+						lineColor = FlxColor.YELLOW;
 					case 2: // hit an Entity
-						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.MAGENTA, 1.5);
+						lineColor = FlxColor.MAGENTA;
 					case 3: // hit a Supply
-						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, FlxColor.CYAN, 1.5);
-					default:
-						DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
+						lineColor = FlxColor.CYAN;
+					default: // hit unknown
+						lineColor = FlxColor.BROWN;
 				}
+				if (isCamTarget)
+					DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y, lineColor, 1.5);
 			} else { // if we didn't hit anything
-				DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
+				if (isCamTarget)
+					DebugLine.drawLine(sensors[i].start.x, sensors[i].start.y, sensors[i].end.x, sensors[i].end.y);
 			}
 			sensors[i].put();
 		}

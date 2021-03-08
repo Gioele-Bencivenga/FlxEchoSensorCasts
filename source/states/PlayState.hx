@@ -1,5 +1,6 @@
 package states;
 
+import flixel.FlxObject;
 import haxe.ui.themes.Theme;
 import utilities.HxFuncs;
 import entities.AutoEntity;
@@ -65,7 +66,7 @@ class PlayState extends FlxState {
 	/**
 	 * Simulation camera, the camera displaying the simulation.
 	 */
-	var simCam:FlxZoomCamera;
+	public static var simCam:FlxZoomCamera;
 
 	/**
 	 * UI camera, the camera displaying the interface indipendently from zoom.
@@ -180,12 +181,12 @@ class PlayState extends FlxState {
 	}
 
 	function setupCameras() {
-		simCam = new FlxZoomCamera(0, 0, FlxG.width, FlxG.height); // create the simulation camera
+		var cam = FlxG.camera;
+		simCam = new FlxZoomCamera(Std.int(cam.x), Std.int(cam.y), cam.width, cam.height, cam.zoom); // create the simulation camera
 		simCam.zoomSpeed = 4;
 		simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
 
 		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
-		// FlxCamera.defaultCameras = [simCam]; // strange stuff seems to happen with this
 
 		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the ui camera
 		uiCam.bgColor = FlxColor.TRANSPARENT; // transparent so we see what's behind it
@@ -241,7 +242,7 @@ class PlayState extends FlxState {
 						agents.add(newAgent);
 						newAgent.add_to_group(entitiesGroup);
 						newAgent.add_to_group(collidableBodies);
-						//FlxMouseEventManager.add(newAgent, onAgentClick);
+						FlxMouseEventManager.add(newAgent, onAgentClick);
 					case 3:
 						resource = new Supply(i * TILE_SIZE, j * TILE_SIZE, FlxG.random.int(1, 15), FlxColor.CYAN);
 						resource.add_to_group(entitiesGroup);
@@ -251,7 +252,7 @@ class PlayState extends FlxState {
 				}
 			}
 		}
-		simCam.follow(agents.getFirstAlive(), 0.2);
+		setCameraTargetAgent(agents.getFirstAlive());
 	}
 
 	/**
@@ -259,7 +260,19 @@ class PlayState extends FlxState {
 	 * @param _agent the agent that was clicked
 	 */
 	function onAgentClick(_agent:FlxSprite) {
-		simCam.follow(_agent, 0.2);
+		setCameraTargetAgent(_agent);
+	}
+
+	/**
+	 * Updates the `simCam`'s target and flips the agent's flag.
+	 * @param _target the new target we want the camera to follow
+	 */
+	function setCameraTargetAgent(_target:FlxObject) {
+		if (simCam.target != null)
+			cast(simCam.target, AutoEntity).isCamTarget = false;
+
+		simCam.follow(_target, 0.2);
+		cast(_target, AutoEntity).isCamTarget = true;
 	}
 
 	/**
