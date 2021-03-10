@@ -34,7 +34,7 @@ class Supply extends FlxSprite {
 	}
 
 	/**
-	 * Depletes the supply (`health`) by the specified amount, flips `canBeHurt` to `false` until the damage feedback ends.
+	 * Depletes the supply's `health` by an amount, flips `canBeHurt` to `false` until the damage feedback ends.
 	 * @param _damage the amount we want to deplete the supply by
 	 */
 	override function hurt(_damage:Float) {
