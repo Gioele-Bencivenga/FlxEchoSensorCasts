@@ -21,10 +21,10 @@
 
 	<menubar width="100%">
 		<menu text="World">
-			<menu text="Generate New" tooltip="Generate a new world from the options" >
-				<menuitem id="btn_gen_cave" text="Cave" tooltip="Generate an enclosed and random cave system"/>
-				<menuitem id="btn_gen_island" text="Inverted" tooltip="Generate the inverse of the cave system: solid and empty blocks are switched"/>
-				<menuitem id="btn_gen_random" text="Random" tooltip="Generate the random distribution of blocks from which the cellular automaton creates the cave"/>
+			<menu text="Generate New" tooltip="Generate a new world from the options">
+				<menuitem id="btn_gen_cave" text="Cave" tooltip="Generate an enclosed and random cave system" />
+				<menuitem id="btn_gen_island" text="Inverted" tooltip="Generate the inverse of the cave system: solid and empty blocks are switched" />
+				<menuitem id="btn_gen_random" text="Random" tooltip="Generate the random distribution of blocks from which the cellular automaton creates the cave" />
 			</menu>
 			<menuitem id="btn_clear_world" text="Clear World" />
 			<menuseparator />
@@ -39,12 +39,13 @@
 	<hbox width="100%">
 		<hbox width="100%"></hbox>
 		<box width="100%">
-			<button id="btn_play_pause" text="pause" toggle="true" selected="false" horizontalAlign="center" icon="assets/icons/icon_pause_light.png" tooltip="Play/pause the simulation"/>
+			<button id="btn_play_pause" text="pause" toggle="true" selected="false" horizontalAlign="center" icon="assets/icons/icon_pause_light.png" tooltip="Play/pause the simulation" />
 		</box>
 		<vbox width="100%">
-			<button id="btn_zoom_+" text="+" horizontalAlign="right" tooltip="Increase zoom level by a small amount \nYou can also use the scrollwheel"/>
-			<button id="btn_zoom" text="Zoom: 0" horizontalAlign="right" tooltip="Toggle between 2 standard zoom levels"/>
-			<button id="btn_zoom_-" text="-" horizontalAlign="right" tooltip="Decrease zoom level by a small amount \nYou can also use the scrollwheel"/>
+			<vbox horizontalAlign="right">
+				<button id="btn_zoom" text="zoom" horizontalAlign="center" />
+				<slider id="sld_zoom" pos="50" horizontalAlign="center" tooltip="Set the zoom level by sliding the slider" />
+			</vbox>
 		</vbox>
 	</hbox>
 

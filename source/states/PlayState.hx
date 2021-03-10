@@ -41,14 +41,14 @@ class PlayState extends FlxState {
 	public static inline final CAM_SPEED:Float = 0.2;
 
 	/**
-	 * Our world generator.
+	 * Minimum zoom level reachable by the `simCam`.
 	 */
-	var gen:Generator;
+	public static inline final CAM_MIN_ZOOM:Float = 0.3;
 
 	/**
-	 * The matrix of 0s that will hold the world data from which the tilemap is generated.
+	 * Maximum zoom level reachable by the `simCam`.
 	 */
-	var levelData:Array<Array<Int>>;
+	public static inline final CAM_MAX_ZOOM:Float = 1.5;
 
 	/**
 	 * Canvas is needed in order to `drawLine()` with `DebugLine`.
@@ -58,7 +58,7 @@ class PlayState extends FlxState {
 	/**
 	 * Collision group containing the terrain tiles.
 	 */
-	public static var terrainGroup:FlxGroup;
+	public static var terrainCollGroup:FlxGroup;
 
 	/**
 	 * Collision group containing the entities.
@@ -73,7 +73,7 @@ class PlayState extends FlxState {
 	public static var collidableBodies:FlxGroup;
 
 	/**
-	 * Typed group of agents, mainly used by the camra right now.
+	 * Typed group of agents, mainly used by the camera right now.
 	 */
 	var agents:FlxTypedGroup<AutoEntity>;
 
@@ -92,56 +92,95 @@ class PlayState extends FlxState {
 	 */
 	var uiView:Component;
 
-	override function create() {
-		/// UI STUFF
-		Toolkit.init();
-		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
-		Toolkit.theme = Theme.DARK;
+	/**
+	 * Whether the simulation updates or not.
+	 */
+	var simUpdates(default, set):Bool = true;
 
-		/// CAMERAS
+	/**
+	 * Automatically sets the value of `FlxEcho.updates`.
+	 * @param newVal the new value `FlxEcho.updates` and `simUpdates`
+	 */
+	function set_simUpdates(newVal) {
+		if (FlxEcho.instance != null)
+			FlxEcho.updates = newVal;
+
+		return simUpdates = newVal;
+	}
+
+	override function create() {
 		setupCameras();
 
-		/// GROUPS
-		terrainGroup = new FlxGroup();
-		add(terrainGroup);
-		terrainGroup.cameras = [simCam];
+		setupUI();
+
+		// create groups for collision handling and other stuff
+		setupGroups();
+
+		// generate world
+		generateCaveTilemap();
+	}
+
+	function setupCameras() {
+		/// SETUP
+		var cam = FlxG.camera;
+		simCam = new FlxZoomCamera(Std.int(cam.x), Std.int(cam.y), cam.width, cam.height, cam.zoom); // create the simulation camera
+		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
+
+		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the ui camera
+		uiCam.bgColor = FlxColor.TRANSPARENT; // transparent bg so we see what's behind it
+		FlxG.cameras.add(uiCam); // add it to the cameras list (simCam doesn't need because we set it as the main already)
+
+		/// CUSTOMIZATION
+		simCam.zoomSpeed = 4;
+		simCam.targetZoom = 1.2;
+		simCam.zoomMargin = 0.2;
+		simCam.bgColor.setRGB(25, 21, 0);
+	}
+
+	/**
+	 * Must call `setupCameras()` before this.
+	 */
+	function setupGroups() {
+		/// ECHO COLLISION GROUPS
+		terrainCollGroup = new FlxGroup();
+		add(terrainCollGroup);
+		terrainCollGroup.cameras = [simCam];
 		entitiesCollGroup = new FlxGroup();
 		add(entitiesCollGroup);
 		entitiesCollGroup.cameras = [simCam];
 
+		/// OTHER GROUPS
 		collidableBodies = new FlxGroup();
+		agents = new FlxTypedGroup<AutoEntity>(20);
+	}
 
-		/// UI
+	/**
+	 * Must call `setupCameras()` before this.
+	 * 
+	 * Generates the UI from the XML and associates functions to buttons.
+	 */
+	function setupUI() {
+		Toolkit.init(); // needed before using any haxeui
+		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
+		Toolkit.theme = Theme.DARK;
+
+		// build UI from XML
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
 		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
 		uiView.scrollFactor.set(0, 0); // and they won't scroll
 		add(uiView);
-		/// UI EVENTS
+		// wire functions to UI buttons
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
 		uiView.findComponent("btn_clear_world", MenuItem).onClick = btn_clearWorld_onClick;
 		uiView.findComponent("link_website", MenuItem).onClick = link_website_onClick;
 		uiView.findComponent("link_github", MenuItem).onClick = link_github_onClick;
 		uiView.findComponent("btn_play_pause", Button).onClick = btn_play_pause_onClick;
 		uiView.findComponent("btn_zoom", Button).onClick = btn_zoom_onClick;
-		uiView.findComponent("btn_zoom_+", Button).onClick = btn_zoomPlus_onClick;
-		uiView.findComponent("btn_zoom_-", Button).onClick = btn_zoomMinus_onClick;
+		uiView.findComponent("sld_zoom", Slider).onChange = sld_zoom_onChange;
 		uiView.findComponent("lbl_version", Label).text = haxe.macro.Compiler.getDefine("PROJECT_VERSION");
-
-		/// WORLD
-		generateCaveTilemap();
-
-		/// COLLISIONS
-		entitiesCollGroup.listen(terrainGroup);
-		entitiesCollGroup.listen(entitiesCollGroup);
-
-		/// CAMERA
-		simCam.targetZoom = 1.2;
-		simCam.zoomMargin = 0.2;
-		simCam.bgColor.setRGB(25, 21, 0);
 	}
 
 	function btn_generateCave_onClick(_) {
-		var item = uiView.findComponent("btn_gen_cave", MenuItem); // need to specify component type if you want field completion after
 		generateCaveTilemap();
 	}
 
@@ -165,11 +204,11 @@ class PlayState extends FlxState {
 		var item = uiView.findComponent("btn_play_pause", Button);
 
 		if (item.selected == true) {
-			FlxEcho.updates = false;
+			simUpdates = false;
 			item.text = "play";
 			item.icon = "assets/icons/icon_play_light.png";
 		} else {
-			FlxEcho.updates = true;
+			simUpdates = true;
 			item.text = "pause";
 			item.icon = "assets/icons/icon_pause_light.png";
 		}
@@ -183,69 +222,63 @@ class PlayState extends FlxState {
 		}
 	}
 
-	function btn_zoomPlus_onClick(_) {
-		simCam.targetZoom += 0.15;
-	}
-
-	function btn_zoomMinus_onClick(_) {
-		simCam.targetZoom -= 0.15;
-	}
-
-	function setupCameras() {
-		var cam = FlxG.camera;
-		simCam = new FlxZoomCamera(Std.int(cam.x), Std.int(cam.y), cam.width, cam.height, cam.zoom); // create the simulation camera
-		simCam.zoomSpeed = 4;
-		simCam.bgColor = FlxColor.BLACK; // empty space will be rendered as black
-
-		FlxG.cameras.reset(simCam); // dump all current cameras and set the simulation camera as the main one
-
-		uiCam = new FlxCamera(0, 0, FlxG.width, FlxG.height); // create the ui camera
-		uiCam.bgColor = FlxColor.TRANSPARENT; // transparent so we see what's behind it
-		FlxG.cameras.add(uiCam); // add it to the cameras list (simCam doesn't need because we set it as the main already)
+	function sld_zoom_onChange(_) {
+		var slider = uiView.findComponent("sld_zoom", Slider);
+		simCam.targetZoom = HxFuncs.map(slider.pos, slider.min, slider.max, CAM_MIN_ZOOM, CAM_MAX_ZOOM);
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		var zoomBtn = uiView.findComponent("btn_zoom", Button);
-		zoomBtn.text = 'Zoom: ${Std.string(Std.int(HxFuncs.map(simCam.targetZoom, 0, 2, 0, 100)))}';
-
 		if (FlxG.mouse.wheel != 0) {
-			simCam.targetZoom += FlxMath.bound(FlxG.mouse.wheel, -0.04, 0.04);
+			var slider = uiView.findComponent("sld_zoom", Slider);
+
+			slider.pos += FlxMath.bound(FlxG.mouse.wheel, -5, 5);
 		}
 	}
 
 	function generateCaveTilemap() {
 		// reset the groups to fill them again
-		emptyGroups([entitiesCollGroup, terrainGroup, collidableBodies]);
+		emptyGroups([entitiesCollGroup, terrainCollGroup, collidableBodies], [agents]);
 
-		gen = new Generator(70, 110); // we instantiate a generator that will generate a matrix of cells
-		levelData = gen.generateCave(2);
+		var gen = new Generator(70, 110); // we instantiate a generator that will generate a matrix of cells
+		var levelData:Array<Array<Int>> = gen.generateCave(2);
 
-		// First thing we want to do before creating any physics objects is init() our Echo world.
+		// destroy previous world
+		if (FlxEcho.instance != null)
+			FlxEcho.clear();
+		// create world before adding any physics objects
 		FlxEcho.init({
 			width: levelData[0].length * TILE_SIZE, // Make the size of your Echo world equal the size of your play field
 			height: levelData.length * TILE_SIZE,
 		});
-
 		FlxEcho.reset_acceleration = true;
+		FlxEcho.updates = simUpdates; // if the sim is paused pause the world too
 
-		// use Echo's TileMap utility to generate physics bodies for our Tilemap - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
+		// generate physics bodies for our Tilemap from the levelData - making sure to ignore any tile with the index 2 or 3 so we can create objects out of them later
 		var tiles = TileMap.generate(levelData.flatten2DArray(), TILE_SIZE, TILE_SIZE, levelData[0].length, levelData.length, 0, 0, 1, null, [2, 3]);
 		for (tile in tiles) {
 			var bounds = tile.bounds(); // Get the bounds of the generated physics body to create a Box sprite from it
 			var wallTile = new Tile(bounds.min_x, bounds.min_y, bounds.width.floor(), bounds.height.floor(), FlxColor.fromRGB(230, 240, 245));
-			bounds.put(); // Make sure to "put()" the bounds so that they can be reused later. This can really help with memory management!
-			// wallTile.set_body(tile); // collisions don't work but feel like they should // attach the generated body to the FlxObject
+			bounds.put(); // put() the bounds so that they can be reused later. this can really help with memory management
+			// wallTile.set_body(tile); // SHOULD attach the generated body to the FlxObject, doesn't see to work at the moment so using add_body instead
 			wallTile.add_body().bodyType = 1; // sensors understand 1 = wall, 2 = entity, 3 = resource...
 			wallTile.get_body().mass = 0; // tiles are immovable
-			wallTile.add_to_group(terrainGroup); // Instead of `group.add(object)` we use `object.add_to_group(group)`
+			wallTile.add_to_group(terrainCollGroup); // Instead of `group.add(object)` we use `object.add_to_group(group)`
 			wallTile.add_to_group(collidableBodies);
 		}
 
-		agents = new FlxTypedGroup<AutoEntity>(20);
-		// step through level data and add entities
-		for (j in 0...levelData.length) {
+		/// CANVAS
+		if (canvas != null)
+			canvas.kill(); // kill previous canvas
+		canvas = new FlxSprite();
+		// make new canvas as big as the world
+		canvas.makeGraphic(Std.int(FlxEcho.instance.world.width), Std.int(FlxEcho.instance.world.height), FlxColor.TRANSPARENT, true);
+		canvas.cameras = [simCam];
+		add(canvas);
+
+		/// ENTITIES
+		for (j in 0...levelData.length) { // step through level data and add entities
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
 					case 2:
@@ -263,21 +296,17 @@ class PlayState extends FlxState {
 				}
 			}
 		}
-		setCameraTargetAgent(agents.getFirstAlive());
 
-		/// CANVAS
-		if (canvas != null)
-			canvas.kill(); // kill previous canvas
-		canvas = new FlxSprite();
-		// make new canvas as big as the world
-		canvas.makeGraphic(Std.int(FlxEcho.instance.world.width), Std.int(FlxEcho.instance.world.height), FlxColor.TRANSPARENT, true);
-		canvas.cameras = [simCam];
-		add(canvas);
+		/// COLLISIONS
+		entitiesCollGroup.listen(terrainCollGroup);
+		entitiesCollGroup.listen(entitiesCollGroup);
+
+		setCameraTargetAgent(agents.getFirstAlive());
 	}
 
 	/**
 	 * Function that gets called when an agent is clicked.
-	 * @param _agent the agent that was clicked
+	 * @param _agent the agent that was clicked (need to be `FlxSprite`)
 	 */
 	function onAgentClick(_agent:FlxSprite) {
 		setCameraTargetAgent(_agent);
@@ -302,17 +331,23 @@ class PlayState extends FlxState {
 	 *
 	 * I think doing this resets the groups and it helped fix a bug with collision when regenerating the map.
 	 * If you read this and you know that I could do this better please let me know!
-	 * 
-	 * There currently is a bug with linecasting, regenerating the world will cause the previous bodies to 
-	 * remain in the array and the linecasts will hit them.
 	 *
-	 * @param groupsToEmpty an array containing the `FlxGroup`s that you want to reset.
+	 * @param _groupsToEmpty an array containing the `FlxGroup`s that you want to reset.
+	 * @param _typedGroups need to empty some `FlxTypedGroup<AutoEntity>` too?
 	 */
-	function emptyGroups(groupsToEmpty:Array<FlxGroup>) {
-		for (group in groupsToEmpty) {
+	function emptyGroups(_groupsToEmpty:Array<FlxGroup>, ?_typedGroups:Array<FlxTypedGroup<AutoEntity>>) {
+		for (group in _groupsToEmpty) {
 			group.kill();
 			group.clear();
 			group.revive();
+		}
+
+		if (_typedGroups.length > 0) {
+			for (group in _typedGroups) {
+				group.kill();
+				group.clear();
+				group.revive();
+			}
 		}
 	}
 }
