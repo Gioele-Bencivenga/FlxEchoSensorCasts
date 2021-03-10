@@ -30,19 +30,28 @@ using flixel.util.FlxArrayUtil;
 using flixel.util.FlxSpriteUtil;
 
 class PlayState extends FlxState {
-	/// CONSTANTS
-	public static inline final TILE_SIZE = 32;
-
-	var gen:Generator;
-
-	var agents:FlxTypedGroup<AutoEntity>;
-
-	var levelData:Array<Array<Int>>;
-
-	public static var resource:Supply;
+	/**
+	 * Size of our tilemaps tiles.
+	 */
+	public static inline final TILE_SIZE:Int = 32;
 
 	/**
-	 * Canvas is needed in order to drawLine().
+	 * Camera follow speed that gets applied to the `lerp` argument in the `cam.follow()` function.
+	 */
+	public static inline final CAM_SPEED:Float = 0.2;
+
+	/**
+	 * Our world generator.
+	 */
+	var gen:Generator;
+
+	/**
+	 * The matrix of 0s that will hold the world data from which the tilemap is generated.
+	 */
+	var levelData:Array<Array<Int>>;
+
+	/**
+	 * Canvas is needed in order to `drawLine()` with `DebugLine`.
 	 */
 	public static var canvas:FlxSprite;
 
@@ -54,7 +63,7 @@ class PlayState extends FlxState {
 	/**
 	 * Collision group containing the entities.
 	 */
-	public static var entitiesGroup:FlxGroup;
+	public static var entitiesCollGroup:FlxGroup;
 
 	/**
 	 * Group containing the entities, terrain and resources bodies.
@@ -62,6 +71,11 @@ class PlayState extends FlxState {
 	 * This is used for ease of linecasting in the `agentsEntity.sense()` function.
 	 */
 	public static var collidableBodies:FlxGroup;
+
+	/**
+	 * Typed group of agents, mainly used by the camra right now.
+	 */
+	var agents:FlxTypedGroup<AutoEntity>;
 
 	/**
 	 * Simulation camera, the camera displaying the simulation.
@@ -84,22 +98,25 @@ class PlayState extends FlxState {
 		Toolkit.scale = 1; // temporary fix for scaling while ian fixes it
 		Toolkit.theme = Theme.DARK;
 
+		/// CAMERAS
 		setupCameras();
 
+		/// GROUPS
 		terrainGroup = new FlxGroup();
 		add(terrainGroup);
 		terrainGroup.cameras = [simCam];
-		entitiesGroup = new FlxGroup();
-		add(entitiesGroup);
-		entitiesGroup.cameras = [simCam];
+		entitiesCollGroup = new FlxGroup();
+		add(entitiesCollGroup);
+		entitiesCollGroup.cameras = [simCam];
 
 		collidableBodies = new FlxGroup();
 
+		/// UI
 		uiView = ComponentMacros.buildComponent("assets/ui/main-view.xml");
 		uiView.cameras = [uiCam]; // all of the ui components contained in uiView will be rendered by uiCam
 		uiView.scrollFactor.set(0, 0); // and they won't scroll
 		add(uiView);
-		// xml events are for scripting with hscript, so we need to get the generated component from code and assign it to the function
+		/// UI EVENTS
 		uiView.findComponent("btn_gen_cave", MenuItem).onClick = btn_generateCave_onClick;
 		uiView.findComponent("btn_clear_world", MenuItem).onClick = btn_clearWorld_onClick;
 		uiView.findComponent("link_website", MenuItem).onClick = link_website_onClick;
@@ -113,15 +130,9 @@ class PlayState extends FlxState {
 		/// WORLD
 		generateCaveTilemap();
 
-		/// DRAWING CANVAS
-		canvas = new FlxSprite();
-		canvas.makeGraphic(Std.int(FlxEcho.instance.world.width), Std.int(FlxEcho.instance.world.height), FlxColor.TRANSPARENT, true);
-		canvas.cameras = [simCam];
-		add(canvas);
-
 		/// COLLISIONS
-		entitiesGroup.listen(terrainGroup);
-		entitiesGroup.listen(entitiesGroup);
+		entitiesCollGroup.listen(terrainGroup);
+		entitiesCollGroup.listen(entitiesCollGroup);
 
 		/// CAMERA
 		simCam.targetZoom = 1.2;
@@ -206,7 +217,7 @@ class PlayState extends FlxState {
 
 	function generateCaveTilemap() {
 		// reset the groups to fill them again
-		emptyGroups([entitiesGroup, terrainGroup, collidableBodies]);
+		emptyGroups([entitiesCollGroup, terrainGroup, collidableBodies]);
 
 		gen = new Generator(70, 110); // we instantiate a generator that will generate a matrix of cells
 		levelData = gen.generateCave(2);
@@ -240,12 +251,12 @@ class PlayState extends FlxState {
 					case 2:
 						var newAgent = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 0.95), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						agents.add(newAgent);
-						newAgent.add_to_group(entitiesGroup);
+						newAgent.add_to_group(entitiesCollGroup);
 						newAgent.add_to_group(collidableBodies);
 						FlxMouseEventManager.add(newAgent, onAgentClick);
 					case 3:
-						resource = new Supply(i * TILE_SIZE, j * TILE_SIZE, FlxG.random.int(1, 15), FlxColor.CYAN);
-						resource.add_to_group(entitiesGroup);
+						var resource = new Supply(i * TILE_SIZE, j * TILE_SIZE, FlxG.random.int(1, 15), FlxColor.CYAN);
+						resource.add_to_group(entitiesCollGroup);
 						resource.add_to_group(collidableBodies);
 					default:
 						continue;
@@ -253,6 +264,15 @@ class PlayState extends FlxState {
 			}
 		}
 		setCameraTargetAgent(agents.getFirstAlive());
+
+		/// CANVAS
+		if (canvas != null)
+			canvas.kill(); // kill previous canvas
+		canvas = new FlxSprite();
+		// make new canvas as big as the world
+		canvas.makeGraphic(Std.int(FlxEcho.instance.world.width), Std.int(FlxEcho.instance.world.height), FlxColor.TRANSPARENT, true);
+		canvas.cameras = [simCam];
+		add(canvas);
 	}
 
 	/**
@@ -276,12 +296,15 @@ class PlayState extends FlxState {
 	}
 
 	/**
-	 * This function `kill()`s, `clear()`s and `revive()`s the passed groups.
+	 * This function `kill()`s, `clear()`s, and then `revive()`s the groups passed in the array.
 	 *
 	 * It's mostly used when re generating the world.
 	 *
 	 * I think doing this resets the groups and it helped fix a bug with collision when regenerating the map.
 	 * If you read this and you know that I could do this better please let me know!
+	 * 
+	 * There currently is a bug with linecasting, regenerating the world will cause the previous bodies to 
+	 * remain in the array and the linecasts will hit them.
 	 *
 	 * @param groupsToEmpty an array containing the `FlxGroup`s that you want to reset.
 	 */
