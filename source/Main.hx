@@ -6,9 +6,6 @@ import states.PlayState;
 import flixel.FlxGame;
 import openfl.display.Sprite;
 
-// ads
-// import extension.admob.AdMob;
-// import extension.admob.GravityMode;
 class Main extends Sprite {
 	public function new() {
 		super();

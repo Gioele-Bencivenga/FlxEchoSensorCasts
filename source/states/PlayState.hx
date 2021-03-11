@@ -215,10 +215,12 @@ class PlayState extends FlxState {
 	}
 
 	function btn_zoom_onClick(_) {
-		if (simCam.zoom >= 1)
-			simCam.targetZoom = 0.5;
-		else if (simCam.zoom <= 1) {
-			simCam.targetZoom = 1.2;
+		var slider = uiView.findComponent("sld_zoom", Slider);
+		
+		if (slider.pos > 50)
+			slider.pos = 30;
+		else if (slider.pos <= 50) {
+			slider.pos = 70;
 		}
 	}
 
@@ -233,7 +235,7 @@ class PlayState extends FlxState {
 		if (FlxG.mouse.wheel != 0) {
 			var slider = uiView.findComponent("sld_zoom", Slider);
 
-			slider.pos += FlxMath.bound(FlxG.mouse.wheel, -5, 5);
+			slider.pos += FlxMath.bound(FlxG.mouse.wheel, -7, 7);
 		}
 	}
 
