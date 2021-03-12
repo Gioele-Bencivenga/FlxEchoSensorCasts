@@ -1,10 +1,8 @@
-# TilemapGen
+# FlxEchoSensorCasts
 
-A project where I try to simulate some autonomous entities in an environment.
+A project where I try to simulate some entities in an environment that use echo linecasts as periodic environment sensors.
 
 Built using Haxe + HaxeFlixel + Echo (physics) + HaxeUI (interface).
-
-The entities will eventually move guided by a neural network and reproduce according to genetic algorithms.
 
 ## Live Build - Broken :(
 
