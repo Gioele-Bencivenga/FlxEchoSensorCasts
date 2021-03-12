@@ -49,6 +49,11 @@ class PlayState extends FlxState {
 	 * Maximum zoom level reachable by the `simCam`.
 	 */
 	public static inline final CAM_MAX_ZOOM:Float = 1.5;
+	
+	/**
+	 * Number of `AutoEntity` that will be placed in the simulation.
+	 */
+	public static inline final AGENTS_COUNT:Int = 5;
 
 	/**
 	 * Canvas is needed in order to `drawLine()` with `DebugLine`.
@@ -240,7 +245,7 @@ class PlayState extends FlxState {
 
 	function generateCaveTilemap() {
 		var gen = new Generator(70, 110); // we instantiate a generator that will generate a matrix of cells
-		var levelData:Array<Array<Int>> = gen.generateCave(2);
+		var levelData:Array<Array<Int>> = gen.generateCave(AGENTS_COUNT);
 
 		// reset the groups to fill them again
 		emptyGroups([entitiesCollGroup, terrainCollGroup, collidableBodies], [agents]);
@@ -283,6 +288,7 @@ class PlayState extends FlxState {
 			for (i in 0...levelData[j].length) {
 				switch (levelData[j][i]) {
 					case 2:
+						//var newAgent = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 0.95), Std.int(TILE_SIZE * 0.7), FlxG.random.getObject([FlxColor.ORANGE, FlxColor.BROWN, FlxColor.MAGENTA, FlxColor.GREEN, FlxColor.YELLOW]));
 						var newAgent = new AutoEntity(i * TILE_SIZE, j * TILE_SIZE, Std.int(TILE_SIZE * 0.95), Std.int(TILE_SIZE * 0.7), FlxColor.YELLOW);
 						agents.add(newAgent);
 						newAgent.add_to_group(entitiesCollGroup);
