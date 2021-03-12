@@ -28,7 +28,6 @@
 			</menu>
 			<menuitem id="btn_clear_world" text="Clear World" />
 			<menuseparator />
-			<menuitem id="btn_place_player" text="Place Entity" tooltip="Places a new entity in the world" />
 		</menu>
 		<menu text="About">
 			<menuitem id="link_website" text="My Website" icon="assets/icons/icon_website.png" />

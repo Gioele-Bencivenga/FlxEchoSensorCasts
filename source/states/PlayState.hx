@@ -185,11 +185,10 @@ class PlayState extends FlxState {
 	}
 
 	function btn_clearWorld_onClick(_) {
-		FlxEcho.clear();
-	}
-
-	function btn_placePlayer_onClick(_) {
-		var item = uiView.findComponent("btn_place_player", MenuItem); // need to specify component type if you want field completion after
+		emptyGroups([entitiesCollGroup, terrainCollGroup, collidableBodies], [agents]);
+		// destroy world
+		if (FlxEcho.instance != null)
+			FlxEcho.clear();
 	}
 
 	function link_website_onClick(_) {
@@ -216,7 +215,7 @@ class PlayState extends FlxState {
 
 	function btn_zoom_onClick(_) {
 		var slider = uiView.findComponent("sld_zoom", Slider);
-		
+
 		if (slider.pos > 50)
 			slider.pos = 30;
 		else if (slider.pos <= 50) {
@@ -240,11 +239,11 @@ class PlayState extends FlxState {
 	}
 
 	function generateCaveTilemap() {
-		// reset the groups to fill them again
-		emptyGroups([entitiesCollGroup, terrainCollGroup, collidableBodies], [agents]);
-
 		var gen = new Generator(70, 110); // we instantiate a generator that will generate a matrix of cells
 		var levelData:Array<Array<Int>> = gen.generateCave(2);
+
+		// reset the groups to fill them again
+		emptyGroups([entitiesCollGroup, terrainCollGroup, collidableBodies], [agents]);
 
 		// destroy previous world
 		if (FlxEcho.instance != null)
