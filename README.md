@@ -2,7 +2,7 @@
 
 A project where I try to simulate some entities in an environment that use echo linecasts as periodic environment sensors.
 
-Built using Haxe + HaxeFlixel + Echo (physics) + HaxeUI (interface).
+Built using [Haxe](https://haxe.org/) + [HaxeFlixel](https://haxeflixel.com/) + [Echo Physics](https://austineast.dev/echo/) + [HaxeUI](http://www.haxeui.org/).
 
 ## Screenshot
 
